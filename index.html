@@ -3,16 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta charset="UTF-8" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <link rel="icon" type="image/png" href="/ogp.png" />
-
   <link rel="apple-touch-icon" href="/ogp.png" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <title>Labyrinth Dissonance - 迷宮の不協和音 - | Cyberpunk Roguelike RPG</title>
-
   <meta name="description" content="4.5畳、家賃5万。借金を返しながら地下迷宮で伝説のギター『Deep Blue』を探す、サイバーパンク・ローグライクRPG。音楽と狂気の迷宮へようこそ。">
   <meta name="keywords" content="ゲーム, RPG, ローグライク, サイバーパンク, 無料ゲーム, ブラウザゲーム, Phaser, インディーゲーム, レトロゲーム, 音楽">
   <meta name="author" content="Universal Make Associate">
@@ -23,7 +23,6 @@
   <meta property="og:description" content="借金を返せ。プライドを守れ。伝説のギターを手に入れろ。Webブラウザで遊べる本格サイバーパンク・ローグライクRPG。" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ja_JP" />
-
   <meta property="og:url" content="https://labyrinth-hr2e.vercel.app/" />
 
   <meta property="og:image" content="https://labyrinth-hr2e.vercel.app/ogp.png" />
@@ -34,29 +33,60 @@
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Labyrinth Dissonance - 迷宮の不協和音 -" />
   <meta name="twitter:description" content="4.5畳、家賃5万。音楽と狂気のサイバーパンクRPG。" />
-
   <meta name="twitter:site" content="@UniversalMake" />
   <meta name="twitter:creator" content="@UniversalMake" />
 
   <style>
+    /* フォント読み込み */
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
+    /* --- Reset & Base --- */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      /* タップ時のハイライトを無効化 */
     }
 
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
+      /* 背景色: 画像読み込み前の一瞬のチラつきを防ぐため黒を指定 */
+      background-color: #0a0a1a;
       background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a0a1a 100%);
       font-family: 'Rajdhani', 'Orbitron', monospace;
       position: relative;
     }
 
-    /* ★追加: ロード画面のスタイル */
+    /* --- App Container --- */
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- Phaser Canvas (Game Screen) --- */
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      /* パフォーマンス最適化: スマホ負荷軽減のためシャドウを軽量化 */
+      box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.2),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* --- Loading Screen (LCP対策) --- */
     #loading-screen {
       position: fixed;
       top: 0;
@@ -71,7 +101,8 @@
       z-index: 9999;
       /* 最前面 */
       transition: opacity 0.5s ease;
-      /* フェードアウト用 */
+      will-change: opacity;
+      /* 最適化 */
     }
 
     .loader-text {
@@ -90,6 +121,8 @@
       border-radius: 50%;
       border-top-color: #00ffff;
       animation: spin 1s ease-in-out infinite;
+      will-change: transform;
+      /* 最適化 */
     }
 
     @keyframes spin {
@@ -104,7 +137,8 @@
       }
     }
 
-    /* サイバーパンクグリッド背景 */
+    /* --- Background Effects (Cyberpunk Visuals) --- */
+    /* グリッド背景 */
     body::before {
       content: '';
       position: fixed;
@@ -120,7 +154,7 @@
       z-index: 0;
     }
 
-    /* ネオングロー効果 */
+    /* ネオングロー (GPU最適化済み) */
     body::after {
       content: '';
       position: fixed;
@@ -132,8 +166,6 @@
       animation: pulse 8s ease-in-out infinite;
       pointer-events: none;
       z-index: 0;
-
-      /* ★最適化: GPU合成を有効化してCPU負荷を下げる */
       will-change: transform, opacity;
       transform: translateZ(0);
     }
@@ -152,42 +184,7 @@
       }
     }
 
-    #app {
-      position: relative;
-      z-index: 1;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Phaserキャンバスのスタイル */
-    canvas {
-      display: block;
-      margin: 0 auto;
-      border: 2px solid rgba(0, 255, 255, 0.5);
-      /* ★最適化: スマホでの描画負荷を下げるため、シャドウを少し控えめに */
-      box-shadow:
-        0 0 10px rgba(0, 255, 255, 0.2),
-        inset 0 0 20px rgba(0, 0, 0, 0.5);
-      border-radius: 4px;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    /* スキャンライン効果 */
-    @keyframes scanline {
-      0% {
-        transform: translateY(-100%);
-      }
-
-      100% {
-        transform: translateY(100vh);
-      }
-    }
-
+    /* スキャンライン (GPU最適化済み) */
     .scanline {
       position: fixed;
       top: 0;
@@ -198,10 +195,18 @@
       animation: scanline 8s linear infinite;
       pointer-events: none;
       z-index: 999;
-
-      /* ★最適化: 移動アニメーションのGPU化 */
       will-change: transform;
       transform: translateZ(0);
+    }
+
+    @keyframes scanline {
+      0% {
+        transform: translateY(-100%);
+      }
+
+      100% {
+        transform: translateY(100vh);
+      }
     }
   </style>
 </head>
@@ -211,8 +216,11 @@
     <div class="spinner"></div>
     <div class="loader-text">CONNECTING...</div>
   </div>
+
   <div class="scanline"></div>
+
   <div id="app"></div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 
