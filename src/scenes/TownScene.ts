@@ -1,4 +1,4 @@
-import Phaser from 'phaser'; // Framework
+import Phaser from 'phaser';
 import { type GameState, type InventoryItem } from '../types';
 import { DataManager } from '../logic/DataManager';
 import { resetGame } from '../logic/GameLogic';
@@ -47,14 +47,11 @@ export default class TownScene extends Phaser.Scene {
             return;
         }
 
-        // 日数チェック
+        // 日数チェック（修正版）
         if (state.daysLeft <= 0) {
-            this.scene.start('StoryScene', {
-                scenarioData: [
-                    ...DataManager.scenarios.bad_end,
-                    { event: () => resetGame(this) }
-                ]
-            });
+            // お金があっても強制ゲームオーバーになるのを防ぐため、
+            // RentCheckSceneへ飛ばして支払い処理を委ねる。
+            this.scene.start('RentCheckScene');
             return;
         }
 

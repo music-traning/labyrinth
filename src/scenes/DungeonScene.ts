@@ -1,4 +1,4 @@
-import Phaser from 'phaser'; // Framework
+import Phaser from 'phaser';
 import { type GameState, type InventoryItem } from '../types';
 import { ItemGenerator, Calculator, resetGame } from '../logic/GameLogic';
 import { DataManager } from '../logic/DataManager';
@@ -599,6 +599,7 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     battleDefeat() {
+        // タイマー停止
         if (this.battleTimer) {
             this.battleTimer.remove();
             this.battleTimer = null;
@@ -607,22 +608,74 @@ export default class DungeonScene extends Phaser.Scene {
         this.enemyContainer?.setVisible(false);
         this.skillBtn?.setVisible(false);
 
-        this.log("倒れた...");
+        // サウンド
         synth.playBadEnd();
 
-        const state = this.registry.get('gameState') as GameState;
-        state.hp = Math.floor(state.maxHp * 0.3);
-        state.currentDepth = Math.max(1, state.currentDepth - 5);
+        // ログは残す
+        this.log("倒れた...");
 
-        // プライド減少
+        // ペナルティ計算
+        const state = this.registry.get('gameState') as GameState;
+        state.hp = Math.floor(state.maxHp * 0.3); // 復活時のHP
+        state.currentDepth = Math.max(1, state.currentDepth - 5); // 階層巻き戻り
+
         const prideLoss = Math.floor(Math.random() * 3) + 1;
         state.pride = Math.max(0, state.pride - prideLoss);
         this.log(`プライドが ${prideLoss} 傷ついた...`);
 
         this.registry.set('gameState', state);
 
-        this.time.delayedCall(1000, () => {
-            this.scene.start('TownScene');
+        // --- 敗北モーダルを表示 ---
+        const { width, height } = this.scale;
+
+        // 1. 暗転用オーバーレイ (操作ブロック)
+        const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.8)
+            .setOrigin(0)
+            .setInteractive(); // クリックを吸い取る
+        overlay.setDepth(3000);
+
+        // 2. モーダルコンテナ
+        const container = this.add.container(width / 2, height / 2);
+        container.setDepth(3001);
+
+        // ボックス背景
+        const bg = this.add.rectangle(0, 0, 240, 160, 0x1a0000);
+        bg.setStrokeStyle(2, 0xff0000);
+
+        // メインテキスト
+        const title = this.add.text(0, -30, "負けた、、、", {
+            fontSize: '24px',
+            color: '#ff0000',
+            fontFamily: 'Orbitron, monospace',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // サブテキスト
+        const sub = this.add.text(0, 10, "階層が戻されました。", {
+            fontSize: '12px',
+            color: '#ffffff',
+            fontFamily: 'Rajdhani, sans-serif'
+        }).setOrigin(0.5);
+
+        // OKボタン
+        const okBtn = this.add.rectangle(0, 50, 120, 40, 0x440000).setInteractive();
+        okBtn.setStrokeStyle(1, 0xff4444);
+
+        const okText = this.add.text(0, 50, "OK", {
+            fontSize: '16px',
+            color: '#ffffff',
+            fontFamily: 'Orbitron, monospace'
+        }).setOrigin(0.5);
+
+        container.add([bg, title, sub, okBtn, okText]);
+
+        // ボタンの挙動
+        okBtn.on('pointerover', () => okBtn.setStrokeStyle(2, 0xff0000));
+        okBtn.on('pointerout', () => okBtn.setStrokeStyle(1, 0xff4444));
+
+        okBtn.on('pointerdown', () => {
+            synth.playCancel(); // キャンセル音でリセット感を演出
+            this.scene.start('TownScene'); // 街へ戻る
         });
     }
 
