@@ -9,6 +9,12 @@ export default class ShopScene extends Phaser.Scene {
     private isBuyMode: boolean = false; // false = Sell, true = Buy
     private selectionContainer: Phaser.GameObjects.Container | null = null;
 
+    // Scroll Logic Variables
+    private isScrolling: boolean = false;
+    private startY: number = 0;
+    private listStartY: number = 150;
+    private maxScroll: number = 0;
+
     constructor() {
         super('ShopScene');
     }
@@ -29,8 +35,54 @@ export default class ShopScene extends Phaser.Scene {
         // Footer
         this.createFooter(width, height, state);
 
+        // Setup Scene-level Scroll Input
+        this.setupScrollInput();
+
         // Initial Selection Mode
         this.showSelectionMode(width, height, state);
+    }
+
+    setupScrollInput() {
+        // Desktop Wheel Scroll
+        this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
+            if (!this.listContainer) return;
+            const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, this.listStartY - this.maxScroll, this.listStartY);
+            this.listContainer.y = newY;
+        });
+
+        // Touch/Drag Scroll
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.startY = pointer.y;
+            this.isScrolling = false;
+        });
+
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown && this.listContainer) {
+                const deltaY = pointer.y - pointer.prevPosition.y;
+
+                // Only consider it a scroll if moved significantly
+                if (!this.isScrolling && Math.abs(pointer.y - this.startY) > 10) {
+                    this.isScrolling = true;
+                }
+
+                if (this.isScrolling) {
+                    // Update Container Y
+                    const newY = this.listContainer.y + deltaY;
+                    const minY = this.listStartY - this.maxScroll;
+                    const maxY = this.listStartY;
+
+                    // Allow rubber-banding or strict clamp? Strict clamp for now
+                    this.listContainer.y = Phaser.Math.Clamp(newY, minY, maxY);
+                }
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            // Reset scrolling flag after a short delay to prevent accidental clicks
+            this.time.delayedCall(50, () => {
+                this.isScrolling = false;
+            });
+        });
     }
 
     private footerContainer: Phaser.GameObjects.Container | null = null;
@@ -94,7 +146,11 @@ export default class ShopScene extends Phaser.Scene {
 
         bg.on('pointerover', () => bg.setStrokeStyle(3, 0x00ffff, 1));
         bg.on('pointerout', () => bg.setStrokeStyle(2, 0x00ffff, 0.6));
-        bg.on('pointerdown', onClick);
+
+        // Change to pointerup for consistency, though big menu buttons usually fine on pointerdown
+        bg.on('pointerup', () => {
+            if (!this.isScrolling) onClick();
+        });
 
         return [bg, txt];
     }
@@ -119,7 +175,8 @@ export default class ShopScene extends Phaser.Scene {
             fontSize: '11px', color: '#aaa', fontFamily: 'Rajdhani, sans-serif'
         }).setOrigin(0.5);
 
-        switchBtn.on('pointerdown', () => {
+        switchBtn.on('pointerup', () => {
+            if (this.isScrolling) return;
             this.isBuyMode = !this.isBuyMode;
             switchBtn.setFillStyle(this.isBuyMode ? 0x222244 : 0x333333);
             switchText.setText(this.isBuyMode ? "モード切替 -> 売る" : "モード切替 -> 買う");
@@ -137,23 +194,22 @@ export default class ShopScene extends Phaser.Scene {
         const backBtnText = this.add.text(width / 2, height - 60, "選択に戻る", { fontSize: '12px', fontFamily: 'Rajdhani, sans-serif' }).setOrigin(0.5);
         backBtnText.setDepth(101);
 
-        backBtn.on('pointerdown', () => {
-            this.scene.restart();
+        backBtn.on('pointerup', () => {
+            if (!this.isScrolling) this.scene.restart();
         });
     }
 
     renderList(state: GameState, msgText: Phaser.GameObjects.Text) {
         const { width, height } = this.scale;
-        const listY = 150;
-        const listHeight = height - 200; // Leave space for footer
 
-        let previousY = listY; // Default start position
+        // Reset scroll position
         if (this.listContainer) {
-            previousY = this.listContainer.y;
             this.listContainer.destroy();
         }
 
-        this.listContainer = this.add.container(0, previousY); // Start at previous position
+        this.listContainer = this.add.container(0, this.listStartY);
+
+        const listHeight = height - 200; // Visible area height
 
         let items: InventoryItem[] = [];
         if (this.isBuyMode) {
@@ -168,6 +224,7 @@ export default class ShopScene extends Phaser.Scene {
                 fontSize: '12px', color: '#666', fontFamily: 'Rajdhani, sans-serif'
             }).setOrigin(0.5);
             this.listContainer.add(t);
+            this.maxScroll = 0; // No scroll needed
             return;
         }
 
@@ -234,7 +291,10 @@ export default class ShopScene extends Phaser.Scene {
 
                 container.add([bg, nReq, pReq]);
 
-                bg.on('pointerdown', () => {
+                // IMPORTANT: Changed to pointerup and check isScrolling
+                bg.on('pointerup', () => {
+                    if (this.isScrolling) return; // Don't trigger if dragging
+
                     // Pass one item from the group to process
                     // Logic: Process one item, then re-render list
                     const targetItem = group.originalItems[0];
@@ -248,15 +308,8 @@ export default class ShopScene extends Phaser.Scene {
             currentY += 10;
         });
 
-        // Scroll
-        const maxScroll = Math.max(0, currentY - listHeight);
-        if (maxScroll > 0) {
-            this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
-                if (!this.listContainer) return;
-                const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, listY - maxScroll, listY);
-                this.listContainer.y = newY;
-            });
-        }
+        // Calculate Max Scroll
+        this.maxScroll = Math.max(0, currentY - listHeight);
     }
 
     buyItem(item: InventoryItem, state: GameState, msgText: Phaser.GameObjects.Text) {

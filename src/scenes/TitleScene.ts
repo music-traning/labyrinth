@@ -176,11 +176,11 @@ export default class TitleScene extends Phaser.Scene {
 
         // Delete Save button (if save data exists)
         if (this.hasSaveData) {
-            const deleteBtn = this.add.rectangle(width / 2, height - 80, 200, 40, 0x882222);
+            const deleteBtn = this.add.rectangle(width / 2, height - 100, 200, 40, 0x882222);
             deleteBtn.setStrokeStyle(2, 0xff0000, 0.6);
             deleteBtn.setInteractive();
 
-            const deleteText = this.add.text(width / 2, height - 80, "DELETE SAVE", {
+            const deleteText = this.add.text(width / 2, height - 100, "DELETE SAVE", {
                 fontSize: '14px',
                 color: '#ffffff',
                 fontFamily: 'Orbitron, monospace'
@@ -224,12 +224,27 @@ export default class TitleScene extends Phaser.Scene {
             });
         }
 
-        // Version / Credits
-        this.add.text(width / 2, height - 30, "v1.0.0 | A Cyberpunk Roguelike RPG", {
+        // Version Info
+        this.add.text(width / 2, height - 50, "v1.0.0 | A Cyberpunk Roguelike RPG", {
             fontSize: '9px',
             color: '#444444',
             fontFamily: 'monospace'
         }).setOrigin(0.5);
+
+        // --- Copyright & Link ---
+        const copyright = this.add.text(width / 2, height - 30, "©2026 buro", {
+            fontSize: '11px',
+            color: '#666666',
+            fontFamily: 'Rajdhani, sans-serif'
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        // Hover effect for link
+        copyright.on('pointerover', () => copyright.setColor('#00ffff'));
+        copyright.on('pointerout', () => copyright.setColor('#666666'));
+        copyright.on('pointerdown', () => {
+            window.open('https://note.com/jazzy_begin', '_blank');
+        });
+        // ------------------------
 
         // Scanline effect
         const scanline = this.add.rectangle(0, 0, width, 2, 0xffffff, 0.1).setOrigin(0);
@@ -260,6 +275,7 @@ export default class TitleScene extends Phaser.Scene {
         this.createOverlayForTapToStart();
     }
 
+    // ... (rest of the file remains unchanged)
     showManual() {
         const { width, height } = this.scale;
 
@@ -382,13 +398,40 @@ Humanity 30以下: BAD END
         let scrollY = 0;
         const maxScroll = Math.max(0, textObj.height - (height - 180));
 
+        // Touch Scroll Logic for Manual
+        let startY = 0;
+        let isDragging = false;
+        const inputZone = this.add.zone(0, 80, width, height - 160).setOrigin(0).setInteractive();
+
+        inputZone.on('pointerdown', (pointer: any) => {
+            startY = pointer.y;
+            isDragging = true;
+        });
+
+        inputZone.on('pointermove', (pointer: any) => {
+            if (isDragging) {
+                const deltaY = pointer.y - startY;
+                startY = pointer.y;
+                scrollY -= deltaY; // Invert delta for natural scroll
+                scrollY = Phaser.Math.Clamp(scrollY, -0, maxScroll); // Clamp 0 to maxScroll
+
+                // Update container position (negate scrollY)
+                contentContainer.y = 80 - scrollY;
+            }
+        });
+
+        inputZone.on('pointerup', () => {
+            isDragging = false;
+        });
+
+        // Keep wheel for desktop
         this.input.on('wheel', (_pointer: any, _gameobjects: any, _deltaX: number, deltaY: number) => {
-            scrollY -= deltaY * 0.5;
-            scrollY = Phaser.Math.Clamp(scrollY, -maxScroll, 0);
+            scrollY += deltaY * 0.5;
+            scrollY = Phaser.Math.Clamp(scrollY, 0, maxScroll);
 
             this.tweens.add({
                 targets: contentContainer,
-                y: 80 + scrollY,
+                y: 80 - scrollY,
                 duration: 100,
                 ease: 'Power1'
             });
@@ -396,8 +439,6 @@ Humanity 30以下: BAD END
 
         container.add([closeBtn, closeText]);
     }
-
-
 
     createOverlayForTapToStart() {
         const { width, height } = this.scale;
