@@ -5,6 +5,9 @@ import { resetGame } from '../logic/GameLogic';
 import { synth } from '../logic/SoundSynth';
 
 export default class TownScene extends Phaser.Scene {
+    // メニューボタン管理用コンテナ
+    private menuContainer: Phaser.GameObjects.Container | null = null;
+
     constructor() {
         super('TownScene');
     }
@@ -16,48 +19,34 @@ export default class TownScene extends Phaser.Scene {
         // Auto-save on entering town
         localStorage.setItem('labyrinth_save', JSON.stringify(state));
 
-        // 人間性チェック（最優先）
+        // --- ゲームオーバー判定 (最優先) ---
+
+        // 1. 人間性チェック
         if (state.humanity <= 0) {
-            this.scene.start('StoryScene', {
-                scenarioData: [
-                    { text: "――人間性が失われた。" },
-                    { text: "お前は、もはや人間ではない。\n\n感情も、良心も、すべて失った。" },
-                    { text: "音楽は、ただの「計算」になった。\nリズムは、ただの「数式」になった。" },
-                    { text: "お前は完璧な演奏をする。\nしかし、誰も感動しない。" },
-                    { text: "なぜなら、そこに「魂」がないから。" },
-                    { text: "【BAD END: 虚無の音楽家】" },
-                    { event: () => resetGame(this) }
-                ]
-            });
+            this.triggerBadEnd('humanity');
             return;
         }
 
-        // プライドチェック（ボス戦前の警告）
+        // 2. プライドチェック
         if (state.pride <= 0) {
-            this.scene.start('StoryScene', {
-                scenarioData: [
-                    { text: "――プライドが失われた。" },
-                    { text: "お前は、もはや自分を信じられない。\n\n「俺なんて、どうせ……」" },
-                    { text: "ボスの名言に、耐えられない。\n批評に、立ち向かえない。" },
-                    { text: "お前は、ステージに立つ前に\n逃げ出した。" },
-                    { text: "【BAD END: 敗北者】" },
-                    { event: () => resetGame(this) }
-                ]
-            });
+            this.triggerBadEnd('pride');
             return;
         }
 
-        // ★修正ポイント: 日数0なら、いきなり飛ばさずに演出を入れる
+        // 3. 日数0以下（大家出現イベント）
+        // ★修正: ここで強制イベントを開始し、returnすることでメニュー生成を阻止する
         if (state.daysLeft <= 0) {
             this.showDeadlineEncounter(width, height);
             return;
         }
 
-        // 家賃チェック（初回は自動的にRentCheckSceneへ）
+        // 4. 初回チュートリアル
         if (!state.isTutorialDone) {
             this.scene.start('RentCheckScene');
             return;
         }
+
+        // --- ここから通常の街描画（メニュー生成） ---
 
         this.add.rectangle(0, 0, width, height, 0x0a0a1a).setOrigin(0);
 
@@ -82,41 +71,124 @@ export default class TownScene extends Phaser.Scene {
         title.setStroke('#ff00ff', 2);
         title.setShadow(0, 0, '#00ffff', 10, true, true);
 
-        // モノローグ - より厳密な制限
+        // モノローグ
         this.add.rectangle(width / 2, 80, width - 30, 55, 0x000000, 0.7).setStrokeStyle(1, 0x00ffff, 0.5);
-
         const quote = DataManager.getRandomFlavor('town_quotes') || "...";
-
         this.add.text(width / 2, 80, quote, {
             fontSize: '10px',
             color: '#cccccc',
             fontStyle: 'italic',
             align: 'center',
-            wordWrap: { width: width - 45 }, // より厳密に
+            wordWrap: { width: width - 45 },
             lineSpacing: 2
         }).setOrigin(0.5);
 
-        // ステータス
+        // ステータス表示
+        this.createStatusDisplay(width, state);
+
+        // メニュー生成（コンテナに入れて管理）
+        this.createMenu(width, state);
+
+        // フッター
+        this.createFooter(width, height, state);
+    }
+
+    // ★修正: 使われていなかった state 引数を削除しました
+    triggerBadEnd(type: 'humanity' | 'pride') {
+        const scenarios = type === 'humanity' ? [
+            { text: "――人間性が失われた。" },
+            { text: "お前は、もはや人間ではない。\n\n感情も、良心も、すべて失った。" },
+            { text: "音楽は、ただの「計算」になった。\nリズムは、ただの「数式」になった。" },
+            { text: "お前は完璧な演奏をする。\nしかし、誰も感動しない。" },
+            { text: "なぜなら、そこに「魂」がないから。" },
+            { text: "【BAD END: 虚無の音楽家】" },
+            { event: () => resetGame(this) }
+        ] : [
+            { text: "――プライドが失われた。" },
+            { text: "お前は、もはや自分を信じられない。\n\n「俺なんて、どうせ……」" },
+            { text: "ボスの名言に、耐えられない。\n批評に、立ち向かえない。" },
+            { text: "お前は、ステージに立つ前に\n逃げ出した。" },
+            { text: "【BAD END: 敗北者】" },
+            { event: () => resetGame(this) }
+        ];
+
+        this.scene.start('StoryScene', { scenarioData: scenarios });
+    }
+
+    // 大家出現演出（全画面ブラックアウト）
+    showDeadlineEncounter(width: number, height: number) {
+        // 念のため既存のメニューがあれば消去
+        if (this.menuContainer) {
+            this.menuContainer.destroy();
+            this.menuContainer = null;
+        }
+
+        // 全画面を真っ暗にする (Depth 9000: 最前面)
+        this.add.rectangle(0, 0, width, height, 0x000000)
+            .setOrigin(0)
+            .setInteractive() // クリックを吸い取る
+            .setDepth(9000);
+
+        // 警告テキスト
+        const title = this.add.text(width / 2, height / 2 - 20, "約束の日が、来た……", {
+            fontSize: '16px',
+            color: '#ffffff',
+            fontFamily: 'Rajdhani, sans-serif'
+        }).setOrigin(0.5).setDepth(9001);
+        title.setAlpha(0);
+
+        const subtitle = this.add.text(width / 2, height / 2 + 20, "大家が現れた！", {
+            fontSize: '24px',
+            color: '#ff0000',
+            fontFamily: 'Orbitron, monospace',
+            fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(9001);
+        subtitle.setAlpha(0);
+
+        // アニメーションとサウンド
+        this.tweens.add({
+            targets: title,
+            alpha: 1,
+            duration: 1000,
+            ease: 'Power1',
+            onComplete: () => {
+                synth.playBadEnd();
+                this.cameras.main.shake(200, 0.01);
+                this.tweens.add({
+                    targets: subtitle,
+                    alpha: 1,
+                    duration: 500,
+                    ease: 'Bounce.easeOut'
+                });
+            }
+        });
+
+        // 3秒後に強制遷移
+        this.time.delayedCall(3000, () => {
+            this.scene.start('RentCheckScene');
+        });
+    }
+
+    createStatusDisplay(width: number, state: GameState) {
         const statusBg = this.add.rectangle(width / 2, 125, width - 30, 50, 0x000000, 0.8);
         statusBg.setStrokeStyle(1, 0xff00ff, 0.5);
 
         this.add.text(15, 112, `Lv.${state.level} HP:${state.hp}/${state.maxHp} MP:${state.mp}/${state.maxMp}`, {
-            fontSize: '10px',
-            color: '#00ff00',
-            fontFamily: 'monospace'
+            fontSize: '10px', color: '#00ff00', fontFamily: 'monospace'
         });
         this.add.text(15, 125, `EXP:${state.exp}/${state.nextLevelExp} 最深:B${state.maxReachedDepth}F`, {
-            fontSize: '9px',
-            color: '#88ff88',
-            fontFamily: 'monospace'
+            fontSize: '9px', color: '#88ff88', fontFamily: 'monospace'
         });
         this.add.text(15, 138, `Humanity:${state.humanity} Pride:${state.pride}`, {
-            fontSize: '9px',
-            color: '#ff88ff',
-            fontFamily: 'monospace'
+            fontSize: '9px', color: '#ff88ff', fontFamily: 'monospace'
         });
+    }
 
-        // メニュー - 2列レイアウト
+    createMenu(width: number, state: GameState) {
+        // メニューコンテナを初期化
+        this.menuContainer = this.add.container(0, 0);
+        this.menuContainer.setDepth(200);
+
         const menuItems = [
             { text: "自宅で休む\n(Rest)", key: 'rest', color: 0x224422, glow: 0x00ff00 },
             { text: "地下迷宮\n(Dungeon)", key: 'DungeonScene', color: 0x882222, glow: 0xff0000 },
@@ -141,52 +213,34 @@ export default class TownScene extends Phaser.Scene {
             bg.setStrokeStyle(2, item.glow, 0.6);
 
             const text = this.add.text(0, 0, item.text, {
-                fontSize: '11px',
-                color: '#ffffff',
-                align: 'center',
-                lineSpacing: 1,
-                fontFamily: 'Rajdhani, sans-serif'
+                fontSize: '11px', color: '#ffffff', align: 'center', lineSpacing: 1, fontFamily: 'Rajdhani, sans-serif'
             }).setOrigin(0.5);
 
             btn.add([bg, text]);
 
+            // コンテナに追加
+            this.menuContainer?.add(btn);
+
             bg.on('pointerover', () => {
                 bg.setStrokeStyle(3, item.glow, 1);
-                this.tweens.add({
-                    targets: btn,
-                    scaleX: 1.05,
-                    scaleY: 1.05,
-                    duration: 100,
-                    ease: 'Power1'
-                });
+                this.tweens.add({ targets: btn, scaleX: 1.05, scaleY: 1.05, duration: 100, ease: 'Power1' });
             });
             bg.on('pointerout', () => {
                 bg.setStrokeStyle(2, item.glow, 0.6);
-                this.tweens.add({
-                    targets: btn,
-                    scaleX: 1,
-                    scaleY: 1,
-                    duration: 100,
-                    ease: 'Power1'
-                });
+                this.tweens.add({ targets: btn, scaleX: 1, scaleY: 1, duration: 100, ease: 'Power1' });
             });
 
             bg.on('pointerdown', () => {
                 synth.playSelect();
                 this.tweens.add({
-                    targets: btn,
-                    scaleX: 0.95,
-                    scaleY: 0.95,
-                    duration: 50,
-                    yoyo: true,
-                    ease: 'Power2',
+                    targets: btn, scaleX: 0.95, scaleY: 0.95, duration: 50, yoyo: true, ease: 'Power2',
                     onComplete: () => {
                         if (item.key === 'rest') {
                             this.rest(state);
                         } else if (item.key === 'equip') {
-                            this.showEquipMenu(width, height, state);
+                            this.showEquipMenu(width, this.scale.height, state);
                         } else if (item.key === 'DungeonScene') {
-                            this.showDepthSelector(width, height, state);
+                            this.showDepthSelector(width, this.scale.height, state);
                         } else {
                             this.scene.start(item.key);
                         }
@@ -194,69 +248,27 @@ export default class TownScene extends Phaser.Scene {
                 });
             });
         });
+    }
 
-        // フッター
-        this.add.rectangle(0, height - 70, width, 70, 0x000000, 1).setOrigin(0);
+    createFooter(width: number, height: number, state: GameState) {
+        this.add.rectangle(0, height - 70, width, 70, 0x000000, 1).setOrigin(0).setDepth(150);
         this.add.text(15, height - 50, `¥${state.money}`, {
-            fontSize: '15px',
-            color: '#ffff00',
-            fontFamily: 'Orbitron, monospace'
-        }).setOrigin(0, 0.5);
+            fontSize: '15px', color: '#ffff00', fontFamily: 'Orbitron, monospace'
+        }).setOrigin(0, 0.5).setDepth(151);
 
         const daysColor = state.daysLeft <= 7 ? '#ff0000' : '#ff8888';
         this.add.text(width - 15, height - 50, `残り${state.daysLeft}日`, {
-            fontSize: '12px',
-            color: daysColor,
-            fontFamily: 'monospace'
-        }).setOrigin(1, 0.5);
-    }
-
-    // ★追加: 大家出現演出
-    showDeadlineEncounter(width: number, height: number) {
-        // 全画面を真っ暗にする
-        this.add.rectangle(0, 0, width, height, 0x000000).setOrigin(0).setInteractive();
-
-        // 警告テキスト
-        const title = this.add.text(width / 2, height / 2 - 20, "約束の日が、来た……", {
-            fontSize: '16px',
-            color: '#ffffff',
-            fontFamily: 'Rajdhani, sans-serif'
-        }).setOrigin(0.5);
-        title.setAlpha(0);
-
-        const subtitle = this.add.text(width / 2, height / 2 + 20, "大家が現れた！", {
-            fontSize: '24px',
-            color: '#ff0000',
-            fontFamily: 'Orbitron, monospace',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-        subtitle.setAlpha(0);
-
-        // アニメーションとサウンド
-        this.tweens.add({
-            targets: title,
-            alpha: 1,
-            duration: 1000,
-            ease: 'Power1',
-            onComplete: () => {
-                synth.playBadEnd(); // ドーン！という音
-                this.cameras.main.shake(200, 0.01);
-                this.tweens.add({
-                    targets: subtitle,
-                    alpha: 1,
-                    duration: 500,
-                    ease: 'Bounce.easeOut'
-                });
-            }
-        });
-
-        // 3秒後に強制遷移
-        this.time.delayedCall(3000, () => {
-            this.scene.start('RentCheckScene');
-        });
+            fontSize: '12px', color: daysColor, fontFamily: 'monospace'
+        }).setOrigin(1, 0.5).setDepth(151);
     }
 
     rest(state: GameState) {
+        // ★鉄壁ガード: 日数が0以下なら休息不可
+        if (state.daysLeft <= 0) {
+            this.showDeadlineEncounter(this.scale.width, this.scale.height);
+            return;
+        }
+
         state.hp = state.maxHp;
         state.mp = state.maxMp;
         state.daysLeft -= 1;
@@ -271,7 +283,7 @@ export default class TownScene extends Phaser.Scene {
             align: 'center',
             backgroundColor: '#000000',
             padding: { x: 20, y: 15 }
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(500);
 
         this.time.delayedCall(2000, () => {
             msg.destroy();
@@ -281,13 +293,13 @@ export default class TownScene extends Phaser.Scene {
 
     showDepthSelector(width: number, height: number, state: GameState) {
         const container = this.add.container(width / 2, height / 2);
+        container.setDepth(1000);
+
         const bg = this.add.rectangle(0, 0, width - 30, 300, 0x000000, 0.95);
         bg.setStrokeStyle(2, 0x00ffff, 0.8);
 
         const title = this.add.text(0, -130, "開始階層を選択", {
-            fontSize: '16px',
-            color: '#00ffff',
-            fontFamily: 'Orbitron, monospace'
+            fontSize: '16px', color: '#00ffff', fontFamily: 'Orbitron, monospace'
         }).setOrigin(0.5);
 
         container.add([bg, title]);
@@ -306,17 +318,12 @@ export default class TownScene extends Phaser.Scene {
 
             const btnBg = this.add.rectangle(0, y, 200, 32, 0x222244).setInteractive();
             btnBg.setStrokeStyle(1, 0x00ffff, 0.5);
-
             const btnText = this.add.text(0, y, `B${depth}F から開始`, {
-                fontSize: '13px',
-                color: '#ffffff',
-                fontFamily: 'Rajdhani, sans-serif'
+                fontSize: '13px', color: '#ffffff', fontFamily: 'Rajdhani, sans-serif'
             }).setOrigin(0.5);
 
             container.add([btnBg, btnText]);
 
-            btnBg.on('pointerover', () => btnBg.setStrokeStyle(2, 0x00ffff, 1));
-            btnBg.on('pointerout', () => btnBg.setStrokeStyle(1, 0x00ffff, 0.5));
             btnBg.on('pointerdown', () => {
                 state.currentDepth = depth;
                 this.registry.set('gameState', state);
@@ -326,29 +333,25 @@ export default class TownScene extends Phaser.Scene {
         });
 
         const closeBtn = this.add.text(0, 120, "【キャンセル】", {
-            fontSize: '13px',
-            color: '#ff8888',
-            fontFamily: 'monospace'
+            fontSize: '13px', color: '#ff8888', fontFamily: 'monospace'
         }).setOrigin(0.5).setInteractive();
-
         container.add(closeBtn);
         closeBtn.on('pointerdown', () => container.destroy());
     }
 
     showEquipMenu(width: number, height: number, state: GameState) {
         const container = this.add.container(0, 0);
+        container.setDepth(1000);
+
         const bg = this.add.rectangle(width / 2, height / 2, width - 20, height - 40, 0x000000, 0.95);
         bg.setStrokeStyle(2, 0xff00ff, 0.8);
 
         const title = this.add.text(width / 2, 30, "装備変更", {
-            fontSize: '16px',
-            color: '#ff00ff',
-            fontFamily: 'Orbitron, monospace'
+            fontSize: '16px', color: '#ff00ff', fontFamily: 'Orbitron, monospace'
         }).setOrigin(0.5);
 
         container.add([bg, title]);
 
-        // 現在の装備
         const currentY = 60;
         const currentTitle = this.add.text(20, currentY, "【現在の装備】", { fontSize: '12px', color: '#ffff00' });
         const weaponText = this.add.text(20, currentY + 18, `武器: ${state.equippedWeapon ? `${state.equippedWeapon.name} (+${state.equippedWeapon.power})` : 'なし'}`, {
@@ -360,7 +363,6 @@ export default class TownScene extends Phaser.Scene {
 
         container.add([currentTitle, weaponText, armorText]);
 
-        // 装備可能アイテムリスト（カテゴリ別・グループ化）
         const listY = 120;
         const listContainer = this.add.container(0, listY);
         let currentListY = 0;
@@ -369,12 +371,10 @@ export default class TownScene extends Phaser.Scene {
 
         if (equippableItems.length === 0) {
             const noItemText = this.add.text(width / 2, listY + 40, "装備可能なアイテムがありません", {
-                fontSize: '11px',
-                color: '#888888'
+                fontSize: '11px', color: '#888888'
             }).setOrigin(0.5);
             container.add(noItemText);
         } else {
-            // Group items function
             const groupItems = (items: InventoryItem[]) => {
                 const grouped: { [key: string]: { count: number, item: InventoryItem } } = {};
                 items.forEach(i => {
@@ -388,7 +388,7 @@ export default class TownScene extends Phaser.Scene {
             };
 
             const weapons = groupItems(equippableItems.filter(i => i.type === 'weapon'));
-            const armors = groupItems(equippableItems.filter(i => i.type === 'accessory')); // Using accessory as armor equivalent
+            const armors = groupItems(equippableItems.filter(i => i.type === 'accessory'));
 
             const createCategorySection = (catTitle: string, items: { count: number, item: InventoryItem }[]) => {
                 const catHeader = this.add.text(20, currentListY, catTitle, { fontSize: '12px', color: '#00ff00' });
@@ -404,9 +404,7 @@ export default class TownScene extends Phaser.Scene {
                 items.forEach(group => {
                     const item = group.item;
                     const count = group.count;
-                    const isEquipped = item.isEquipped; // Check if representative item is equipped (simplified) 
-                    // Note: Ideally check if ANY in group is equipped, but inventory logic might mark strict instances.
-                    // For logic simplicity, we equip a new instance if clicked.
+                    const isEquipped = item.isEquipped;
 
                     const itemBg = this.add.rectangle(width / 2, currentListY + 16, width - 50, 30, 0x222244).setInteractive();
                     itemBg.setStrokeStyle(1, 0x8888ff, 0.5);
@@ -415,28 +413,21 @@ export default class TownScene extends Phaser.Scene {
                     const statusVal = item.type === 'weapon' ? `ATK+${item.power}` : `DEF+${item.power}`;
 
                     const itemText = this.add.text(30, currentListY + 16, `${nameDisplay}\n${statusVal}`, {
-                        fontSize: '10px',
-                        color: isEquipped ? '#ffff00' : '#ffffff',
-                        lineSpacing: 1,
-                        wordWrap: { width: width - 110 }
+                        fontSize: '10px', color: isEquipped ? '#ffff00' : '#ffffff', lineSpacing: 1, wordWrap: { width: width - 110 }
                     }).setOrigin(0, 0.5);
 
                     listContainer.add([itemBg, itemText]);
-
-                    itemBg.on('pointerover', () => itemBg.setStrokeStyle(2, 0x8888ff, 1));
-                    itemBg.on('pointerout', () => itemBg.setStrokeStyle(1, 0x8888ff, 0.5));
 
                     itemBg.on('pointerdown', () => {
                         this.equipItem(item, state);
                         this.input.off('wheel');
                         container.destroy();
-                        // Re-open to refresh
                         this.showEquipMenu(width, height, state);
                     });
 
                     currentListY += 38;
                 });
-                currentListY += 15; // Spacing between categories
+                currentListY += 15;
             };
 
             createCategorySection("【武器】", weapons);
@@ -444,7 +435,6 @@ export default class TownScene extends Phaser.Scene {
 
             container.add(listContainer);
 
-            // Scroll Logic
             const maxScroll = Math.max(0, currentListY - (height - 200));
             if (maxScroll > 0) {
                 this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
@@ -455,9 +445,7 @@ export default class TownScene extends Phaser.Scene {
         }
 
         const closeBtn = this.add.text(width / 2, height - 45, "【閉じる】", {
-            fontSize: '13px',
-            color: '#00ffff',
-            fontFamily: 'monospace'
+            fontSize: '13px', color: '#00ffff', fontFamily: 'monospace'
         }).setOrigin(0.5).setInteractive();
 
         container.add(closeBtn);
@@ -470,16 +458,13 @@ export default class TownScene extends Phaser.Scene {
     equipItem(item: InventoryItem, state: GameState) {
         if (item.type === 'weapon') {
             if (state.equippedWeapon) state.equippedWeapon.isEquipped = false;
-            // Also explicitly find and invalid flag in inventory to be safe
             state.inventory.forEach(i => {
                 if (i.type === 'weapon' && i.isEquipped) i.isEquipped = false;
             });
-
             state.equippedWeapon = item;
             item.isEquipped = true;
         } else if (item.type === 'accessory') {
             if (state.equippedAccessory) state.equippedAccessory.isEquipped = false;
-            // Also explicitly find and invalid flag in inventory to be safe
             state.inventory.forEach(i => {
                 if (i.type === 'accessory' && i.isEquipped) i.isEquipped = false;
             });
