@@ -1,4 +1,3 @@
-
 import Phaser from 'phaser';
 import { type GameState, type InventoryItem } from '../types';
 import { DataManager } from '../logic/DataManager';
@@ -7,6 +6,12 @@ import { Calculator } from '../logic/GameLogic';
 
 export default class AppraisalScene extends Phaser.Scene {
     private listContainer: Phaser.GameObjects.Container | null = null;
+
+    // Scroll Variables
+    private isScrolling: boolean = false;
+    private startY: number = 0;
+    private listStartY: number = 260; // リストの開始Y座標
+    private maxScroll: number = 0;
 
     constructor() {
         super('AppraisalScene');
@@ -32,7 +37,7 @@ export default class AppraisalScene extends Phaser.Scene {
         danpeiContainer.setDepth(100); // 最前面に固定
 
         // Message Area - 固定位置
-        const msgBg = this.add.rectangle(width / 2, 170, width - 25, 100, 0x000000, 0.9); // Increased height from 60 to 100
+        const msgBg = this.add.rectangle(width / 2, 170, width - 25, 100, 0x000000, 0.9);
         msgBg.setStrokeStyle(2, 0xffaa00);
         msgBg.setDepth(100);
 
@@ -51,18 +56,20 @@ export default class AppraisalScene extends Phaser.Scene {
         this.createFooter(width, height, state);
 
         // List Title
-        const listY = 260; // Pushed down
-        const listTitle = this.add.text(20, listY - 20, "【鑑定する】", {
+        const listTitle = this.add.text(20, this.listStartY - 20, "【鑑定する】", {
             fontSize: '13px',
             color: '#aaaaff',
             fontFamily: 'Rajdhani, sans-serif'
         });
         listTitle.setDepth(100);
 
+        // Setup Scroll Input (Touch & Mouse)
+        this.setupScrollInput();
+
         const unidentifiedItems = state.inventory.filter(i => !i.isIdentified);
 
         if (unidentifiedItems.length === 0) {
-            this.add.text(width / 2, listY + 50, "鑑定するものがないぜ。\n迷宮で掘ってきな！", {
+            this.add.text(width / 2, this.listStartY + 50, "鑑定するものがないぜ。\n迷宮で掘ってきな！", {
                 fontSize: '12px',
                 color: '#888',
                 align: 'center',
@@ -70,7 +77,7 @@ export default class AppraisalScene extends Phaser.Scene {
             }).setOrigin(0.5);
         } else {
             // スクロール可能なリストコンテナ
-            this.listContainer = this.add.container(0, listY);
+            this.listContainer = this.add.container(0, this.listStartY);
 
             let currentY = 0;
             const categories = ['weapon', 'accessory', 'book', 'memory', 'trash'];
@@ -94,7 +101,7 @@ export default class AppraisalScene extends Phaser.Scene {
                     const bg = this.add.rectangle(0, 0, width - 35, 42, 0x332211).setInteractive();
                     bg.setStrokeStyle(1, 0x664422);
 
-                    // 鑑定費用計算（価格の10%、最低50円）
+                    // 鑑定費用計算
                     const appraisalCost = Calculator.calculateAppraisalCost(item);
 
                     const displayName = `？？？`;
@@ -115,27 +122,18 @@ export default class AppraisalScene extends Phaser.Scene {
 
                     bg.on('pointerover', () => {
                         bg.setStrokeStyle(2, 0xffaa00);
-                        this.tweens.add({
-                            targets: btn,
-                            scaleX: 1.02,
-                            scaleY: 1.02,
-                            duration: 100,
-                            ease: 'Power1'
-                        });
+                        this.tweens.add({ targets: btn, scaleX: 1.02, scaleY: 1.02, duration: 100, ease: 'Power1' });
                     });
 
                     bg.on('pointerout', () => {
                         bg.setStrokeStyle(1, 0x664422);
-                        this.tweens.add({
-                            targets: btn,
-                            scaleX: 1,
-                            scaleY: 1,
-                            duration: 100,
-                            ease: 'Power1'
-                        });
+                        this.tweens.add({ targets: btn, scaleX: 1, scaleY: 1, duration: 100, ease: 'Power1' });
                     });
 
-                    bg.on('pointerdown', () => {
+                    // Change to pointerup + scroll guard
+                    bg.on('pointerup', () => {
+                        if (this.isScrolling) return;
+
                         this.tweens.add({
                             targets: btn,
                             scaleX: 0.95,
@@ -157,24 +155,8 @@ export default class AppraisalScene extends Phaser.Scene {
                 currentY += 10; // Spacing between categories
             });
 
-            // スクロール機能
-            const maxScroll = Math.max(0, (unidentifiedItems.length * 48) - 280);
-            if (maxScroll > 0) {
-                this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
-                    if (this.listContainer) {
-                        const targetY = this.listContainer.y - deltaY * 0.5;
-                        const clampedY = Phaser.Math.Clamp(targetY, listY - maxScroll, listY);
-
-                        // スムースなスクロール
-                        this.tweens.add({
-                            targets: this.listContainer,
-                            y: clampedY,
-                            duration: 150,
-                            ease: 'Power2'
-                        });
-                    }
-                });
-            }
+            // Calculate Max Scroll
+            this.maxScroll = Math.max(0, currentY - (height - 300));
         }
 
         // Return
@@ -188,29 +170,50 @@ export default class AppraisalScene extends Phaser.Scene {
 
         backBtn.on('pointerover', () => {
             backBtn.setStrokeStyle(3, 0x888888);
-            this.tweens.add({
-                targets: [backBtn, backText],
-                scaleX: 1.05,
-                scaleY: 1.05,
-                duration: 100,
-                ease: 'Power1'
-            });
+            this.tweens.add({ targets: [backBtn, backText], scaleX: 1.05, scaleY: 1.05, duration: 100, ease: 'Power1' });
         });
 
         backBtn.on('pointerout', () => {
             backBtn.setStrokeStyle(2, 0x666666);
-            this.tweens.add({
-                targets: [backBtn, backText],
-                scaleX: 1,
-                scaleY: 1,
-                duration: 100,
-                ease: 'Power1'
-            });
+            this.tweens.add({ targets: [backBtn, backText], scaleX: 1, scaleY: 1, duration: 100, ease: 'Power1' });
         });
 
-        backBtn.on('pointerdown', () => {
-            this.input.off('wheel');
-            this.scene.start('TownScene');
+        backBtn.on('pointerup', () => {
+            if (!this.isScrolling) this.scene.start('TownScene');
+        });
+    }
+
+    setupScrollInput() {
+        // Desktop Wheel
+        this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
+            if (!this.listContainer) return;
+            const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, this.listStartY - this.maxScroll, this.listStartY);
+            this.listContainer.y = newY;
+        });
+
+        // Touch/Drag Scroll
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.startY = pointer.y;
+            this.isScrolling = false;
+        });
+
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown && this.listContainer) {
+                const deltaY = pointer.y - pointer.prevPosition.y;
+                if (!this.isScrolling && Math.abs(pointer.y - this.startY) > 10) {
+                    this.isScrolling = true;
+                }
+                if (this.isScrolling) {
+                    const newY = this.listContainer.y + deltaY;
+                    this.listContainer.y = Phaser.Math.Clamp(newY, this.listStartY - this.maxScroll, this.listStartY);
+                }
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.time.delayedCall(50, () => {
+                this.isScrolling = false;
+            });
         });
     }
 
@@ -225,21 +228,16 @@ export default class AppraisalScene extends Phaser.Scene {
         if (item.isIdentified) return;
 
         if (state.money < appraisalCost) {
-            // エラーメッセージをアニメーション
             msgText.setText(`ダン「金がねえのか！\n鑑定料は¥${appraisalCost} だ！」`);
             msgText.setColor('#ff0000');
-
             this.tweens.add({
                 targets: msgText,
                 scaleX: 1.1,
                 scaleY: 1.1,
                 duration: 100,
                 yoyo: true,
-                onComplete: () => {
-                    msgText.setColor('#ffffff');
-                }
+                onComplete: () => { msgText.setColor('#ffffff'); }
             });
-
             synth.playCancel();
             return;
         }
@@ -253,13 +251,10 @@ export default class AppraisalScene extends Phaser.Scene {
         const flavor = DataManager.getRandomFlavor('appraisal');
         let itemName = item.fullName.split('\n')[0];
 
-        // 名前が長すぎる場合は改行を考慮
         if (itemName.length > 25) {
-            // 25文字ごとに改行を挿入
             const words = itemName.split(' ');
             let currentLine = '';
             let result = '';
-
             words.forEach(word => {
                 if ((currentLine + word).length > 25) {
                     result += currentLine.trim() + '\n';
@@ -275,22 +270,13 @@ export default class AppraisalScene extends Phaser.Scene {
         msgText.setText(`${flavor} \n\n『${itemName}』だ！！\n(¥${appraisalCost} 支払った)`);
         msgText.setColor('#00ff00');
 
-        // アニメーション
-        this.tweens.add({
-            targets: msgText,
-            scaleX: 1.05,
-            scaleY: 1.05,
-            duration: 200,
-            yoyo: true
-        });
+        this.tweens.add({ targets: msgText, scaleX: 1.05, scaleY: 1.05, duration: 200, yoyo: true });
 
-        // リストのテキスト更新
         const shortName = item.fullName.split('\n')[0].substring(0, 18) + (item.fullName.split('\n')[0].length > 18 ? '...' : '');
         listText.setText(shortName);
         listText.setColor('#00ff00');
         listText.setFontSize('10px');
 
-        // 費用表示を削除
         costText.setText('鑑定済');
         costText.setColor('#888888');
 

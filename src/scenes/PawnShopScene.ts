@@ -8,6 +8,12 @@ export default class PawnShopScene extends Phaser.Scene {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private fixedMemories: any[] = [];
 
+    // Scroll Variables
+    private isScrolling: boolean = false;
+    private startY: number = 0;
+    private listStartY: number = 160;
+    private maxScroll: number = 0;
+
 
     constructor() {
         super('PawnShopScene');
@@ -17,7 +23,6 @@ export default class PawnShopScene extends Phaser.Scene {
         const { width, height } = this.scale;
         const state = this.registry.get('gameState') as GameState;
 
-        // Initialize fixed memories (Prices x10 as requested)
         this.fixedMemories = [
             {
                 id: 'letter',
@@ -50,17 +55,14 @@ export default class PawnShopScene extends Phaser.Scene {
 
         this.add.rectangle(0, 0, width, height, 0x1a1a0e).setOrigin(0);
 
-        // Footer
         this.createFooter(width, height, state);
 
-        // Title
         this.add.text(width / 2, 30, "薄暗い質屋", {
             fontSize: '18px',
             color: '#ffaa00',
             fontFamily: 'Orbitron, monospace'
         }).setOrigin(0.5);
 
-        // Shopkeeper
         this.add.rectangle(width / 2, 80, width - 30, 60, 0x000000, 0.8).setStrokeStyle(1, 0xffaa00, 0.5);
         this.add.text(width / 2, 80, "店主「思い出に値段はつけられねえが、\n　　　現金には換えられるぜ」", {
             fontSize: '10px',
@@ -71,13 +73,11 @@ export default class PawnShopScene extends Phaser.Scene {
             lineSpacing: 3
         }).setOrigin(0.5);
 
-        // Mode Switch Button (Removed as Buy Back is disabled)
+        // Setup Scroll
+        this.setupScrollInput();
 
-
-        // Initial Render
         this.renderList(state);
 
-        // Back Button
         const backBtn = this.add.rectangle(width / 2, height - 60, 160, 30, 0x444444).setInteractive();
         backBtn.setStrokeStyle(2, 0x666666);
         this.add.text(width / 2, height - 60, "店を出る", {
@@ -86,10 +86,43 @@ export default class PawnShopScene extends Phaser.Scene {
             fontFamily: 'Rajdhani, sans-serif'
         }).setOrigin(0.5);
 
-        backBtn.on('pointerdown', () => {
-            this.scene.start('TownScene');
+        backBtn.on('pointerup', () => {
+            if (!this.isScrolling) this.scene.start('TownScene');
         });
     }
+
+    setupScrollInput() {
+        this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
+            if (!this.listContainer) return;
+            const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, this.listStartY - this.maxScroll, this.listStartY);
+            this.listContainer.y = newY;
+        });
+
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.startY = pointer.y;
+            this.isScrolling = false;
+        });
+
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown && this.listContainer) {
+                const deltaY = pointer.y - pointer.prevPosition.y;
+                if (!this.isScrolling && Math.abs(pointer.y - this.startY) > 10) {
+                    this.isScrolling = true;
+                }
+                if (this.isScrolling) {
+                    const newY = this.listContainer.y + deltaY;
+                    this.listContainer.y = Phaser.Math.Clamp(newY, this.listStartY - this.maxScroll, this.listStartY);
+                }
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.time.delayedCall(50, () => {
+                this.isScrolling = false;
+            });
+        });
+    }
+
 
     private footerContainer: Phaser.GameObjects.Container | null = null;
 
@@ -118,11 +151,9 @@ export default class PawnShopScene extends Phaser.Scene {
         }
 
         const { width, height } = this.scale;
-        const listY = 160; // Pushed down further
-        const listHeight = height - 210; // Considering footer and back button
-        this.listContainer = this.add.container(0, listY);
+        const listHeight = height - 210;
+        this.listContainer = this.add.container(0, this.listStartY);
 
-        // Only Sell Items
         const items = this.getSellItems(state);
 
         let currentY = 0;
@@ -134,17 +165,17 @@ export default class PawnShopScene extends Phaser.Scene {
                 fontFamily: 'Rajdhani, sans-serif'
             }).setOrigin(0.5);
             this.listContainer.add(emptyText);
+            this.maxScroll = 0;
             return;
         }
 
         items.forEach((item) => {
             const container = this.add.container(width / 2, currentY);
-            // Height increased to 200 for better clearance
             const bg = this.add.rectangle(0, 0, width - 20, 200, 0x3a2a1a).setInteractive();
             bg.setStrokeStyle(2, 0xffaa00, 0.6);
 
             const nameText = this.add.text(0, -60, item.name, {
-                fontSize: '16px', // Increased size
+                fontSize: '16px',
                 color: '#ffff00',
                 fontFamily: 'Rajdhani, sans-serif',
                 align: 'center',
@@ -152,7 +183,7 @@ export default class PawnShopScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             const descText = this.add.text(0, -10, item.description, {
-                fontSize: '12px', // Increased size
+                fontSize: '12px',
                 color: '#ccccaa',
                 align: 'center',
                 wordWrap: { width: width - 40 },
@@ -163,8 +194,8 @@ export default class PawnShopScene extends Phaser.Scene {
             const priceLabel = `Sell: ¥${item.price}`;
             const statsLabel = `(MP-${item.mpLoss} Pride-${item.prideLoss})`;
 
-            const priceText = this.add.text(0, 70, `${priceLabel}\n${statsLabel}`, { // Moved down and split lines if needed
-                fontSize: '14px', // Increased size
+            const priceText = this.add.text(0, 70, `${priceLabel}\n${statsLabel}`, {
+                fontSize: '14px',
                 color: '#00ff00',
                 align: 'center',
                 fontFamily: 'monospace'
@@ -182,72 +213,22 @@ export default class PawnShopScene extends Phaser.Scene {
                 this.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 100 });
             });
 
-            bg.on('pointerdown', () => {
+            // pointerup & scroll check
+            bg.on('pointerup', () => {
+                if (this.isScrolling) return;
                 this.sellMemory(item, state);
             });
 
-
             this.listContainer?.add(container);
-            currentY += 220; // Increased spacing for larger items
+            currentY += 220;
         });
 
-
-        // Scroll (Simplified)
-        const maxScroll = Math.max(0, currentY - listHeight);
-        if (maxScroll > 0) {
-            this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
-                if (this.listContainer) {
-                    this.listContainer.y -= deltaY * 0.5;
-                    this.listContainer.y = Phaser.Math.Clamp(this.listContainer.y, listY - maxScroll, listY);
-                }
-            });
-        }
+        this.maxScroll = Math.max(0, currentY - listHeight);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getSellItems(state: GameState): any[] {
-        // Defines the structure of items we can display
         const inventoryMemories = state.inventory
-            .filter(item => item.type === 'memory' && item.memoryData)
-            .map(item => ({
-                id: item.id, // Inventory ID (Unique)
-                memoryId: item.memoryType, // Type ID
-                name: item.name,
-                description: item.memoryData.description,
-                price: Calculator.calculateMemorySellPrice(item.memoryData),
-                mpLoss: item.memoryData.mpLoss,
-                prideLoss: item.memoryData.prideLoss,
-                humanityLoss: item.memoryData.humanityLoss,
-                isFixed: false,
-                originalItem: item
-            }));
-
-        const availableFixed = this.fixedMemories
-            .filter(m => !state.soldMemories.includes(m.id))
-            .map(m => ({
-                ...m,
-                id: m.id, // Fixed ID (e.g. 'letter')
-                memoryId: m.id,
-                isFixed: true,
-                originalItem: null
-            }));
-
-        return [...availableFixed, ...inventoryMemories];
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getBuyBackItems(state: GameState): any[] {
-        // Sold fixed memories
-        const soldFixed = this.fixedMemories
-            .filter(m => state.soldMemories.includes(m.id))
-            .map(m => ({
-                ...m,
-                isFixed: true,
-                originalItem: null
-            }));
-
-        // Sold inventory memories
-        const soldDungeon = (state.soldInventory || [])
             .filter(item => item.type === 'memory' && item.memoryData)
             .map(item => ({
                 id: item.id,
@@ -262,12 +243,21 @@ export default class PawnShopScene extends Phaser.Scene {
                 originalItem: item
             }));
 
-        return [...soldFixed, ...soldDungeon];
+        const availableFixed = this.fixedMemories
+            .filter(m => !state.soldMemories.includes(m.id))
+            .map(m => ({
+                ...m,
+                id: m.id,
+                memoryId: m.id,
+                isFixed: true,
+                originalItem: null
+            }));
+
+        return [...availableFixed, ...inventoryMemories];
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sellMemory(memory: any, state: GameState) {
-        // Confirmation Logic
         const { width, height } = this.scale;
 
         const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.9).setOrigin(0).setInteractive();
@@ -289,7 +279,6 @@ export default class PawnShopScene extends Phaser.Scene {
         noBtn.on('pointerdown', () => { overlay.destroy(); container.destroy(); });
 
         yesBtn.on('pointerdown', () => {
-            // Execute Sell
             state.money += memory.price;
             state.maxMp -= memory.mpLoss;
             state.mp = Math.min(state.mp, state.maxMp);
@@ -310,12 +299,8 @@ export default class PawnShopScene extends Phaser.Scene {
             container.destroy();
 
             this.createFooter(width, height, state);
-
-            // Show Result (Simplified: Log to top or just Toast, but for now just refresh list for smoothness)
-            // The user requested NO transition (i.e., stay on list), so we just refresh.
             this.renderList(state);
 
-            // Optional: Show a small toast indicator if possible, but immediate refresh is what was asked.
             const toast = this.add.text(width / 2, 70, `売却しました (+¥${memory.price})`, {
                 fontSize: '12px', color: '#ffff00', stroke: '#000', strokeThickness: 2
             }).setOrigin(0.5);
@@ -326,58 +311,6 @@ export default class PawnShopScene extends Phaser.Scene {
                 duration: 1500,
                 onComplete: () => toast.destroy()
             });
-        });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    buyBackMemory(memory: any, state: GameState) {
-        if (state.money < memory.price) {
-            this.showResult("資金不足", "店主「金がねえなら帰んな。」", state, false);
-            return;
-        }
-
-        const { width, height } = this.scale;
-        const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.9).setOrigin(0).setInteractive();
-        const container = this.add.container(width / 2, height / 2);
-        const bg = this.add.rectangle(0, 0, width - 30, 200, 0x1a1a0e, 1).setStrokeStyle(3, 0x00ff00, 0.8);
-
-        const title = this.add.text(0, -70, "買い戻し", { fontSize: '16px', color: '#00ff00' }).setOrigin(0.5);
-        const warning = this.add.text(0, -20, `${memory.name}を\n¥${memory.price}で買い戻しますか？\n(ステータスが戻るかも...)`, {
-            fontSize: '11px', align: 'center', lineSpacing: 4
-        }).setOrigin(0.5);
-
-        const yesBtn = this.add.rectangle(-60, 50, 100, 35, 0x228822).setInteractive();
-        const yesTxt = this.add.text(-60, 50, "買い戻す", { fontSize: '12px' }).setOrigin(0.5);
-        const noBtn = this.add.rectangle(60, 50, 100, 35, 0x444444).setInteractive();
-        const noTxt = this.add.text(60, 50, "やめる", { fontSize: '12px' }).setOrigin(0.5);
-
-        container.add([bg, title, warning, yesBtn, yesTxt, noBtn, noTxt]);
-
-        noBtn.on('pointerdown', () => { overlay.destroy(); container.destroy(); });
-
-        yesBtn.on('pointerdown', () => {
-            state.money -= memory.price;
-            // Restore stats?
-            state.maxMp += memory.mpLoss;
-            state.pride += memory.prideLoss;
-            state.humanity += memory.humanityLoss;
-
-            if (memory.isFixed) {
-                state.soldMemories = state.soldMemories.filter(id => id !== memory.id);
-            } else {
-                state.soldInventory = state.soldInventory.filter(i => i.id !== memory.id);
-                state.inventory.push(memory.originalItem);
-            }
-
-            this.registry.set('gameState', state);
-            synth.playPowerUp();
-            overlay.destroy();
-            container.destroy();
-
-            // Update Footer
-            this.createFooter(width, height, state);
-
-            this.showResult("買い戻し完了", `${memory.name}を取り戻した！\n失った心が少し埋まった。`, state);
         });
     }
 

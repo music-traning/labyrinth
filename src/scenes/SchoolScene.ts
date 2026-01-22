@@ -5,6 +5,13 @@ import { synth } from '../logic/SoundSynth';
 
 export default class SchoolScene extends Phaser.Scene {
     private footerContainer: Phaser.GameObjects.Container | null = null;
+    private listContainer: Phaser.GameObjects.Container | null = null;
+
+    // Scroll Variables
+    private isScrolling: boolean = false;
+    private startY: number = 0;
+    private listStartY: number = 150;
+    private maxScroll: number = 0;
 
     constructor() {
         super('SchoolScene');
@@ -17,7 +24,6 @@ export default class SchoolScene extends Phaser.Scene {
 
         this.add.rectangle(0, 0, width, height, 0x0a0a1a).setOrigin(0);
 
-        // タイトル
         this.add.text(width / 2, 30, schoolData.title || "公共職業訓練センター", {
             fontSize: '16px',
             color: '#00ffff',
@@ -25,14 +31,12 @@ export default class SchoolScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        // サブタイトル
         this.add.text(width / 2, 60, schoolData.subtitle || "どのコースを受講する？", {
             fontSize: '12px',
             color: '#aaaaaa',
             fontFamily: 'Rajdhani, sans-serif'
         }).setOrigin(0.5);
 
-        // 講師のセリフ
         const teacherDialogueRaw = Phaser.Utils.Array.GetRandom(schoolData.teacher_dialogues || ["..."]);
         const teacherDialogue = String(teacherDialogueRaw || "...");
         const dialogueBg = this.add.rectangle(width / 2, 100, width - 30, 50, 0x000000, 0.7);
@@ -46,29 +50,28 @@ export default class SchoolScene extends Phaser.Scene {
             lineSpacing: 2
         }).setOrigin(0.5);
 
-        // コースリスト
+        // Scroll Input
+        this.setupScrollInput();
+
+        // Create List Container
+        this.listContainer = this.add.container(0, this.listStartY);
+
         const courses = schoolData.courses || [];
-        const startY = 150;
+        let currentY = 0;
 
-        courses.forEach((course: any, index: number) => {
-            const y = startY + index * 75;
-            if (y > height - 100) return;
-
-            // コース要件チェック
+        courses.forEach((course: any) => {
             const meetsRequirements = this.checkRequirements(course.requirements, state);
             const canAfford = state.money >= course.cost;
-            // Prevent rel-learning skill if already acquired
             const alreadyLearned = course.rewards && course.rewards.skill && state.skills.includes(course.rewards.skill);
             const isAvailable = meetsRequirements && canAfford && !alreadyLearned;
 
-            const container = this.add.container(width / 2, y);
+            const container = this.add.container(width / 2, currentY);
             const bg = this.add.rectangle(0, 0, width - 30, 65, isAvailable ? 0x222244 : 0x333333);
             if (isAvailable) {
                 bg.setInteractive();
             }
             bg.setStrokeStyle(2, isAvailable ? 0x8888ff : 0x666666, 0.6);
 
-            // コース名
             const nameText = this.add.text(0, -20, course.name, {
                 fontSize: '12px',
                 color: isAvailable ? '#ffff00' : '#888888',
@@ -76,7 +79,6 @@ export default class SchoolScene extends Phaser.Scene {
                 align: 'center'
             }).setOrigin(0.5);
 
-            // 説明文
             let descTextContent = course.description;
             if (alreadyLearned) {
                 descTextContent = "（受講済み）";
@@ -93,7 +95,6 @@ export default class SchoolScene extends Phaser.Scene {
                 lineSpacing: 2
             }).setOrigin(0.5);
 
-            // 費用
             const costText = this.add.text(0, 25, `費用: ¥${course.cost}`, {
                 fontSize: '9px',
                 color: canAfford ? '#00ff00' : '#ff0000',
@@ -105,13 +106,21 @@ export default class SchoolScene extends Phaser.Scene {
             if (isAvailable) {
                 bg.on('pointerover', () => bg.setStrokeStyle(3, 0x8888ff, 1));
                 bg.on('pointerout', () => bg.setStrokeStyle(2, 0x8888ff, 0.6));
-                bg.on('pointerdown', () => {
-                    this.takeCourse(course, state);
+
+                // Click (pointerup with scroll guard)
+                bg.on('pointerup', () => {
+                    if (!this.isScrolling) this.takeCourse(course, state);
                 });
             }
+
+            this.listContainer?.add(container);
+            currentY += 75;
         });
 
-        // 戻るボタン
+        // Max Scroll
+        this.maxScroll = Math.max(0, currentY - (height - 250));
+
+        // Return Button
         const backBtn = this.add.rectangle(width / 2, height - 60, 160, 30, 0x444444).setInteractive();
         backBtn.setStrokeStyle(2, 0x666666);
         this.add.text(width / 2, height - 60, "街へ戻る", {
@@ -120,11 +129,43 @@ export default class SchoolScene extends Phaser.Scene {
             fontFamily: 'Rajdhani, sans-serif'
         }).setOrigin(0.5);
 
-        backBtn.on('pointerdown', () => {
-            this.scene.start('TownScene');
+        backBtn.on('pointerup', () => {
+            if (!this.isScrolling) this.scene.start('TownScene');
         });
 
         this.createFooter(width, height, state);
+    }
+
+    setupScrollInput() {
+        this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
+            if (!this.listContainer) return;
+            const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, this.listStartY - this.maxScroll, this.listStartY);
+            this.listContainer.y = newY;
+        });
+
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.startY = pointer.y;
+            this.isScrolling = false;
+        });
+
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown && this.listContainer) {
+                const deltaY = pointer.y - pointer.prevPosition.y;
+                if (!this.isScrolling && Math.abs(pointer.y - this.startY) > 10) {
+                    this.isScrolling = true;
+                }
+                if (this.isScrolling) {
+                    const newY = this.listContainer.y + deltaY;
+                    this.listContainer.y = Phaser.Math.Clamp(newY, this.listStartY - this.maxScroll, this.listStartY);
+                }
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.time.delayedCall(50, () => {
+                this.isScrolling = false;
+            });
+        });
     }
 
     createFooter(width: number, height: number, state: GameState) {
@@ -154,10 +195,7 @@ export default class SchoolScene extends Phaser.Scene {
     }
 
     takeCourse(course: any, state: GameState) {
-        // 費用支払い
         state.money -= course.cost;
-
-        // 報酬適用
         if (course.rewards) {
             if (course.rewards.baseAtk) state.baseAtk += course.rewards.baseAtk;
             if (course.rewards.baseDef) state.baseDef += course.rewards.baseDef;
@@ -167,13 +205,10 @@ export default class SchoolScene extends Phaser.Scene {
                 state.skills.push(course.rewards.skill);
             }
         }
-
         this.registry.set('gameState', state);
         synth.playPowerUp();
         this.createFooter(this.scale.width, this.scale.height, state);
 
-
-        // 完了メッセージ
         const completionMsgRaw = Phaser.Utils.Array.GetRandom(DataManager.school.completion_messages || ["講座を修了した！"]);
         const completionMsg = String(completionMsgRaw || "講座を修了した！");
 

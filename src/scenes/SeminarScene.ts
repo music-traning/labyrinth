@@ -6,6 +6,13 @@ import { DataManager } from '../logic/DataManager';
 export default class SeminarScene extends Phaser.Scene {
     private footerContainer: Phaser.GameObjects.Container | null = null;
 
+    // Scroll Variables
+    private listContainer: Phaser.GameObjects.Container | null = null;
+    private isScrolling: boolean = false;
+    private startY: number = 0;
+    private listStartY: number = 150;
+    private maxScroll: number = 0;
+
     constructor() {
         super('SeminarScene');
     }
@@ -73,10 +80,10 @@ export default class SeminarScene extends Phaser.Scene {
             }).setOrigin(0.5);
         }
 
-        const listY = 150;
-        const listHeight = height - 250; // Adjusted for footer
+        // Setup Scroll
+        this.setupScrollInput();
 
-        const listContainer = this.add.container(0, listY);
+        this.listContainer = this.add.container(0, this.listStartY);
         let currentY = 0;
 
         seminarData.courses.forEach((course: any) => {
@@ -146,32 +153,25 @@ export default class SeminarScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             container.add([bg, levelTag, nameText, descText, effectText, priceText]);
-            listContainer.add(container);
+
+            // ★ここを修正しました: '?' を追加してnull安全に
+            this.listContainer?.add(container);
 
             if (!alreadyLearned && canAfford && levelOk) {
                 bg.on('pointerover', () => {
                     bg.setStrokeStyle(3, 0xffaa00, 1);
-                    this.tweens.add({
-                        targets: container,
-                        scaleX: 1.02,
-                        scaleY: 1.02,
-                        duration: 100,
-                        ease: 'Power1'
-                    });
+                    this.tweens.add({ targets: container, scaleX: 1.02, scaleY: 1.02, duration: 100, ease: 'Power1' });
                 });
 
                 bg.on('pointerout', () => {
                     bg.setStrokeStyle(2, 0xffaa00, 0.6);
-                    this.tweens.add({
-                        targets: container,
-                        scaleX: 1,
-                        scaleY: 1,
-                        duration: 100,
-                        ease: 'Power1'
-                    });
+                    this.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 100, ease: 'Power1' });
                 });
 
-                bg.on('pointerdown', () => {
+                // Pointer Up + Guard
+                bg.on('pointerup', () => {
+                    if (this.isScrolling) return;
+
                     this.tweens.add({
                         targets: container,
                         scaleX: 0.95,
@@ -188,37 +188,54 @@ export default class SeminarScene extends Phaser.Scene {
             currentY += 130;
         });
 
-        // スクロール機能
-        const maxScroll = Math.max(0, currentY - listHeight);
+        // Max Scroll
+        this.maxScroll = Math.max(0, currentY - (height - 250));
 
-        if (maxScroll > 0) {
-            this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
-                const newY = Phaser.Math.Clamp(listContainer.y - deltaY * 0.5, listY - maxScroll, listY);
-                this.tweens.add({
-                    targets: listContainer,
-                    y: newY,
-                    duration: 150,
-                    ease: 'Power2'
-                });
-            });
-        }
-
-        // 戻るボタン
         const backBtn = this.add.rectangle(width / 2, height - 60, 160, 30, 0x444444).setInteractive();
-
         backBtn.setStrokeStyle(2, 0x666666);
         this.add.text(width / 2, height - 60, "退室する", {
-
             fontSize: '12px',
             color: '#ffffff',
             fontFamily: 'Rajdhani, sans-serif'
         }).setOrigin(0.5);
 
-        backBtn.on('pointerdown', () => {
-            this.scene.start('TownScene');
+        backBtn.on('pointerup', () => {
+            if (!this.isScrolling) this.scene.start('TownScene');
         });
 
         this.createFooter(width, height, state);
+    }
+
+    setupScrollInput() {
+        this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
+            if (!this.listContainer) return;
+            const newY = Phaser.Math.Clamp(this.listContainer.y - deltaY * 0.5, this.listStartY - this.maxScroll, this.listStartY);
+            this.listContainer.y = newY;
+        });
+
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            this.startY = pointer.y;
+            this.isScrolling = false;
+        });
+
+        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+            if (pointer.isDown && this.listContainer) {
+                const deltaY = pointer.y - pointer.prevPosition.y;
+                if (!this.isScrolling && Math.abs(pointer.y - this.startY) > 10) {
+                    this.isScrolling = true;
+                }
+                if (this.isScrolling) {
+                    const newY = this.listContainer.y + deltaY;
+                    this.listContainer.y = Phaser.Math.Clamp(newY, this.listStartY - this.maxScroll, this.listStartY);
+                }
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.time.delayedCall(50, () => {
+                this.isScrolling = false;
+            });
+        });
     }
 
     createFooter(width: number, height: number, state: GameState) {
@@ -243,10 +260,9 @@ export default class SeminarScene extends Phaser.Scene {
     learnSkill(course: any, state: GameState, seminarData: any) {
         const { width, height } = this.scale;
 
-        // 支払い
         state.money -= course.cost;
         state.humanity -= course.humanityLoss;
-        const prideLoss = 5; // セミナー受講でのプライド消費
+        const prideLoss = 5;
         state.pride -= prideLoss;
 
         state.seminarSkills.push(course.id);
@@ -256,8 +272,6 @@ export default class SeminarScene extends Phaser.Scene {
         synth.playPowerUp();
         this.createFooter(width, height, state);
 
-
-        // 受講シーン
         const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.95).setOrigin(0).setInteractive();
         overlay.setDepth(1000);
 
@@ -333,7 +347,6 @@ export default class SeminarScene extends Phaser.Scene {
             this.scene.restart();
         });
 
-        // フェードイン
         container.setAlpha(0);
         this.tweens.add({
             targets: container,
@@ -380,7 +393,6 @@ export default class SeminarScene extends Phaser.Scene {
             this.scene.start('TownScene');
         });
 
-        // フェードイン
         container.setAlpha(0);
         this.tweens.add({
             targets: container,
