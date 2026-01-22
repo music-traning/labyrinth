@@ -34,7 +34,6 @@ export default class TownScene extends Phaser.Scene {
         }
 
         // 3. 日数0以下（大家出現イベント）
-        // ★修正: ここで強制イベントを開始し、returnすることでメニュー生成を阻止する
         if (state.daysLeft <= 0) {
             this.showDeadlineEncounter(width, height);
             return;
@@ -93,7 +92,6 @@ export default class TownScene extends Phaser.Scene {
         this.createFooter(width, height, state);
     }
 
-    // ★修正: 使われていなかった state 引数を削除しました
     triggerBadEnd(type: 'humanity' | 'pride') {
         const scenarios = type === 'humanity' ? [
             { text: "――人間性が失われた。" },
@@ -117,19 +115,16 @@ export default class TownScene extends Phaser.Scene {
 
     // 大家出現演出（全画面ブラックアウト）
     showDeadlineEncounter(width: number, height: number) {
-        // 念のため既存のメニューがあれば消去
         if (this.menuContainer) {
             this.menuContainer.destroy();
             this.menuContainer = null;
         }
 
-        // 全画面を真っ暗にする (Depth 9000: 最前面)
         this.add.rectangle(0, 0, width, height, 0x000000)
             .setOrigin(0)
-            .setInteractive() // クリックを吸い取る
+            .setInteractive()
             .setDepth(9000);
 
-        // 警告テキスト
         const title = this.add.text(width / 2, height / 2 - 20, "約束の日が、来た……", {
             fontSize: '16px',
             color: '#ffffff',
@@ -145,7 +140,6 @@ export default class TownScene extends Phaser.Scene {
         }).setOrigin(0.5).setDepth(9001);
         subtitle.setAlpha(0);
 
-        // アニメーションとサウンド
         this.tweens.add({
             targets: title,
             alpha: 1,
@@ -163,7 +157,6 @@ export default class TownScene extends Phaser.Scene {
             }
         });
 
-        // 3秒後に強制遷移
         this.time.delayedCall(3000, () => {
             this.scene.start('RentCheckScene');
         });
@@ -185,7 +178,6 @@ export default class TownScene extends Phaser.Scene {
     }
 
     createMenu(width: number, state: GameState) {
-        // メニューコンテナを初期化
         this.menuContainer = this.add.container(0, 0);
         this.menuContainer.setDepth(200);
 
@@ -218,7 +210,6 @@ export default class TownScene extends Phaser.Scene {
 
             btn.add([bg, text]);
 
-            // コンテナに追加
             this.menuContainer?.add(btn);
 
             bg.on('pointerover', () => {
@@ -263,7 +254,6 @@ export default class TownScene extends Phaser.Scene {
     }
 
     rest(state: GameState) {
-        // ★鉄壁ガード: 日数が0以下なら休息不可
         if (state.daysLeft <= 0) {
             this.showDeadlineEncounter(this.scale.width, this.scale.height);
             return;
@@ -343,7 +333,12 @@ export default class TownScene extends Phaser.Scene {
         const container = this.add.container(0, 0);
         container.setDepth(1000);
 
-        const bg = this.add.rectangle(width / 2, height / 2, width - 20, height - 40, 0x000000, 0.95);
+        // ★★★修正ポイント：ここで変数を宣言して、以下の全ての関数から見えるようにする
+        let isScrolling = false;
+        let startY = 0;
+        // ★★★★★★★★★★★★★★★★★★★★★
+
+        const bg = this.add.rectangle(width / 2, height / 2, width - 20, height - 40, 0x000000, 0.95).setInteractive(); // 背景もInteractiveにして裏側クリック防止
         bg.setStrokeStyle(2, 0xff00ff, 0.8);
 
         const title = this.add.text(width / 2, 30, "装備変更", {
@@ -418,11 +413,18 @@ export default class TownScene extends Phaser.Scene {
 
                     listContainer.add([itemBg, itemText]);
 
-                    itemBg.on('pointerdown', () => {
-                        this.equipItem(item, state);
-                        this.input.off('wheel');
-                        container.destroy();
-                        this.showEquipMenu(width, height, state);
+                    itemBg.on('pointerup', () => {
+                        // 上で宣言した変数をここで使う
+                        if (!isScrolling) {
+                            this.equipItem(item, state);
+                            // スクロールイベントを解除してから再描画
+                            this.input.off('pointermove');
+                            this.input.off('pointerdown');
+                            this.input.off('pointerup');
+                            this.input.off('wheel');
+                            container.destroy();
+                            this.showEquipMenu(width, height, state);
+                        }
                     });
 
                     currentListY += 38;
@@ -435,11 +437,47 @@ export default class TownScene extends Phaser.Scene {
 
             container.add(listContainer);
 
+            // --- Scroll Logic (Mouse Wheel & Touch) ---
             const maxScroll = Math.max(0, currentListY - (height - 200));
+            let scrollY = 0;
+
+            // Mouse Wheel
             if (maxScroll > 0) {
                 this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: number, deltaY: number) => {
-                    listContainer.y -= deltaY * 0.5;
-                    listContainer.y = Phaser.Math.Clamp(listContainer.y, listY - maxScroll, listY);
+                    scrollY += deltaY * 0.5;
+                    scrollY = Phaser.Math.Clamp(scrollY, 0, maxScroll);
+                    listContainer.y = listY - scrollY;
+                });
+
+                // Touch Scroll
+
+                // 画面全体でタッチイベントを拾う
+                this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+                    startY = pointer.y;
+                    isScrolling = false;
+                });
+
+                this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+                    if (pointer.isDown) {
+                        const deltaY = startY - pointer.y;
+
+                        // 少しでも動いたらスクロールとみなす（誤タップ防止）
+                        if (Math.abs(deltaY) > 5) {
+                            isScrolling = true;
+                        }
+
+                        if (isScrolling) {
+                            scrollY += deltaY;
+                            scrollY = Phaser.Math.Clamp(scrollY, 0, maxScroll);
+                            listContainer.y = listY - scrollY;
+                            startY = pointer.y;
+                        }
+                    }
+                });
+
+                this.input.on('pointerup', () => {
+                    // 遅延させてフラグを戻す
+                    setTimeout(() => { isScrolling = false; }, 50);
                 });
             }
         }
@@ -450,6 +488,10 @@ export default class TownScene extends Phaser.Scene {
 
         container.add(closeBtn);
         closeBtn.on('pointerdown', () => {
+            // イベントリスナーの解除
+            this.input.off('pointermove');
+            this.input.off('pointerdown');
+            this.input.off('pointerup');
             this.input.off('wheel');
             container.destroy();
         });
