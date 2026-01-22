@@ -109,9 +109,9 @@ export default class DungeonScene extends Phaser.Scene {
 
         sBg.on('pointerdown', () => this.openSkillMenu(state));
 
-        const backBtn = this.add.rectangle(width / 2, height - 60, 160, 30, 0x440000).setInteractive();
+        const backBtn = this.add.rectangle(width / 2, height - 110, 160, 30, 0x440000).setInteractive();
         backBtn.setStrokeStyle(2, 0xff0000, 0.6);
-        this.add.text(width / 2, height - 60, "街へ戻る", {
+        this.add.text(width / 2, height - 110, "街へ戻る", {
             fontSize: '14px',
             color: '#ff8888',
             fontFamily: 'Rajdhani, sans-serif'

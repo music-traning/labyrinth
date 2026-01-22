@@ -204,7 +204,7 @@ export default class TownScene extends Phaser.Scene {
         }).setOrigin(0, 0.5);
 
         const daysColor = state.daysLeft <= 7 ? '#ff0000' : '#ff8888';
-        this.add.text(width - 15, height - 15, `残り${state.daysLeft}日`, {
+        this.add.text(width - 15, height - 50, `残り${state.daysLeft}日`, {
             fontSize: '12px',
             color: daysColor,
             fontFamily: 'monospace'

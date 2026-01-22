@@ -78,9 +78,9 @@ export default class PawnShopScene extends Phaser.Scene {
 
         this.renderList(state);
 
-        const backBtn = this.add.rectangle(width / 2, height - 60, 160, 30, 0x444444).setInteractive();
+        const backBtn = this.add.rectangle(width / 2, height - 100, 160, 30, 0x444444).setInteractive();
         backBtn.setStrokeStyle(2, 0x666666);
-        this.add.text(width / 2, height - 60, "店を出る", {
+        this.add.text(width / 2, height - 100, "店を出る", {
             fontSize: '12px',
             color: '#ffffff',
             fontFamily: 'Rajdhani, sans-serif'
@@ -133,12 +133,12 @@ export default class PawnShopScene extends Phaser.Scene {
         this.footerContainer = this.add.container(0, 0);
         this.footerContainer.setDepth(200);
 
-        const bg = this.add.rectangle(0, height - 30, width, 30, 0x000000, 1).setOrigin(0);
-        const moneyText = this.add.text(15, height - 15, `¥${state.money}`, {
+        const bg = this.add.rectangle(0, height - 70, width, 70, 0x000000, 1).setOrigin(0);
+        const moneyText = this.add.text(15, height - 50, `¥${state.money}`, {
             fontSize: '15px', color: '#ffff00', fontFamily: 'Orbitron, monospace'
         }).setOrigin(0, 0.5);
         const daysColor = state.daysLeft <= 7 ? '#ff0000' : '#ff8888';
-        const daysText = this.add.text(width - 15, height - 15, `残り${state.daysLeft}日`, {
+        const daysText = this.add.text(width - 15, height - 50, `残り${state.daysLeft}日`, {
             fontSize: '12px', color: daysColor, fontFamily: 'monospace'
         }).setOrigin(1, 0.5);
 
