@@ -1,22 +1,27 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-    base: './', // 相対パス設定
+    base: './',
     build: {
         assetsDir: 'assets',
-        // ■ パフォーマンス最適化設定
+        // ★変更点: 圧縮方式を 'terser' に変更（少し遅いが、より小さくなる）
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                // 本番環境では console.log を消してさらに軽くする
+                drop_console: true,
+                drop_debugger: true,
+            },
+        },
         rollupOptions: {
             output: {
                 manualChunks: {
-                    // Phaserを別のJSファイルとして切り出す（メインの読み込みを軽くする）
                     phaser: ['phaser'],
                 },
             },
         },
-        // コード圧縮率を高める設定
-        minify: 'esbuild',
-        target: 'esnext', // 最新ブラウザ向けに最適化してサイズダウン
-        cssCodeSplit: true, // CSSも分割して読み込む
-        chunkSizeWarningLimit: 1000, // 警告の閾値を上げる
+        target: 'esnext',
+        cssCodeSplit: true,
+        chunkSizeWarningLimit: 1000,
     }
 })
