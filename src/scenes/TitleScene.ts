@@ -273,9 +273,18 @@ export default class TitleScene extends Phaser.Scene {
         });
 
         this.createOverlayForTapToStart();
+
+        // ★★★重要追加：ここでHTMLのロード画面を消す★★★
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.remove();
+            }, 500);
+        }
     }
 
-    // ... (rest of the file remains unchanged)
+    // ... (以下、既存のメソッド群) ...
     showManual() {
         const { width, height } = this.scale;
 

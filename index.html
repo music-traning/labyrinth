@@ -222,6 +222,18 @@
   <div id="app"></div>
 
   <script type="module" src="/src/main.ts"></script>
+  <script>
+    // 【保険】もしゲーム側でロード画面が消されなかった場合、4秒後に強制的に消す
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 500);
+        }
+      }, 4000); // 4秒待機
+    });
+  </script>
 </body>
 
 </html>
