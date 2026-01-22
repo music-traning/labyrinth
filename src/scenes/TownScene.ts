@@ -196,8 +196,8 @@ export default class TownScene extends Phaser.Scene {
         });
 
         // フッター
-        this.add.rectangle(0, height - 30, width, 30, 0x000000, 0.9).setOrigin(0);
-        this.add.text(15, height - 15, `¥${state.money}`, {
+        this.add.rectangle(0, height - 70, width, 70, 0x000000, 1).setOrigin(0);
+        this.add.text(15, height - 50, `¥${state.money}`, {
             fontSize: '15px',
             color: '#ffff00',
             fontFamily: 'Orbitron, monospace'

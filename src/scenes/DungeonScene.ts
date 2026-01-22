@@ -135,15 +135,15 @@ export default class DungeonScene extends Phaser.Scene {
         this.enemyContainer.setVisible(false);
 
         // ダンジョン内フッター
-        this.add.rectangle(0, height - 30, width, 30, 0x000000, 0.9).setOrigin(0);
-        this.moneyText = this.add.text(15, height - 15, `¥${state.money}`, {
+        this.add.rectangle(0, height - 70, width, 70, 0x000000, 0.9).setOrigin(0);
+        this.moneyText = this.add.text(15, height - 50, `¥${state.money}`, {
             fontSize: '15px',
             color: '#ffff00',
             fontFamily: 'Orbitron, monospace'
         }).setOrigin(0, 0.5);
 
         const daysColor = state.daysLeft <= 7 ? '#ff0000' : '#ff8888';
-        this.daysText = this.add.text(width - 15, height - 15, `残り${state.daysLeft}日`, {
+        this.daysText = this.add.text(width - 15, height - 50, `残り${state.daysLeft}日`, {
             fontSize: '12px',
             color: daysColor,
             fontFamily: 'monospace'
