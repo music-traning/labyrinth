@@ -56,8 +56,8 @@ export class Calculator {
         // Depth 1: 1.0x, Depth 10: 1.67x, Depth 50: 4.33x, Depth 99: 7.6x
         const depthMultiplier = 1 + (state.currentDepth / 15) + Math.pow(state.currentDepth / 50, 1.5);
 
-        // 40階層以降の激化
-        const deepZoneMultiplier = state.currentDepth > 40 ? 1 + (state.currentDepth - 40) * 0.05 : 1;
+        // 変更後: (Depth - 40) * 0.02 (1階層につき2%増) -> B80Fで +80% (1.8倍)
+        const deepZoneMultiplier = state.currentDepth > 40 ? 1 + (state.currentDepth - 40) * 0.02 : 1;
 
         // プレイヤーレベルに応じた補正（レベルが低いと敵も弱く）
         const levelAdjustment = 0.8 + (state.level * 0.02);
