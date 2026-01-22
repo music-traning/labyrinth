@@ -47,17 +47,14 @@ export default class TownScene extends Phaser.Scene {
             return;
         }
 
-        // 日数チェック（修正版）
+        // ★修正ポイント: 日数0なら、いきなり飛ばさずに演出を入れる
         if (state.daysLeft <= 0) {
-            // お金があっても強制ゲームオーバーになるのを防ぐため、
-            // RentCheckSceneへ飛ばして支払い処理を委ねる。
-            this.scene.start('RentCheckScene');
+            this.showDeadlineEncounter(width, height);
             return;
         }
 
         // 家賃チェック（初回は自動的にRentCheckSceneへ）
         if (!state.isTutorialDone) {
-            // 初回のみ自動的にRentCheckSceneへ（フラグは立てない）
             this.scene.start('RentCheckScene');
             return;
         }
@@ -212,6 +209,51 @@ export default class TownScene extends Phaser.Scene {
             color: daysColor,
             fontFamily: 'monospace'
         }).setOrigin(1, 0.5);
+    }
+
+    // ★追加: 大家出現演出
+    showDeadlineEncounter(width: number, height: number) {
+        // 全画面を真っ暗にする
+        this.add.rectangle(0, 0, width, height, 0x000000).setOrigin(0).setInteractive();
+
+        // 警告テキスト
+        const title = this.add.text(width / 2, height / 2 - 20, "約束の日が、来た……", {
+            fontSize: '16px',
+            color: '#ffffff',
+            fontFamily: 'Rajdhani, sans-serif'
+        }).setOrigin(0.5);
+        title.setAlpha(0);
+
+        const subtitle = this.add.text(width / 2, height / 2 + 20, "大家が現れた！", {
+            fontSize: '24px',
+            color: '#ff0000',
+            fontFamily: 'Orbitron, monospace',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        subtitle.setAlpha(0);
+
+        // アニメーションとサウンド
+        this.tweens.add({
+            targets: title,
+            alpha: 1,
+            duration: 1000,
+            ease: 'Power1',
+            onComplete: () => {
+                synth.playBadEnd(); // ドーン！という音
+                this.cameras.main.shake(200, 0.01);
+                this.tweens.add({
+                    targets: subtitle,
+                    alpha: 1,
+                    duration: 500,
+                    ease: 'Bounce.easeOut'
+                });
+            }
+        });
+
+        // 3秒後に強制遷移
+        this.time.delayedCall(3000, () => {
+            this.scene.start('RentCheckScene');
+        });
     }
 
     rest(state: GameState) {
@@ -447,6 +489,4 @@ export default class TownScene extends Phaser.Scene {
         this.registry.set('gameState', state);
         synth.playPowerUp();
     }
-
-
 }
