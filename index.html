@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja" prefix="og: http://ogp.me/ns#">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Labyrinth Dissonance - 迷宮の不協和音 - | Cyberpunk Roguelike RPG</title>
+
+  <meta name="description" content="4.5畳、家賃5万。借金を返しながら地下迷宮で伝説のギター『Deep Blue』を探す、サイバーパンク・ローグライクRPG。音楽と狂気の迷宮へようこそ。">
+  <meta name="keywords" content="ゲーム, RPG, ローグライク, サイバーパンク, 無料ゲーム, ブラウザゲーム, Phaser, インディーゲーム, レトロゲーム, 音楽">
+  <meta name="author" content="Universal Make Associate">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:site_name" content="Labyrinth Dissonance - 迷宮の不協和音" />
+  <meta property="og:title" content="Labyrinth Dissonance - 迷宮の不協和音 -" />
+  <meta property="og:description" content="借金を返せ。プライドを守れ。伝説のギターを手に入れろ。Webブラウザで遊べる本格サイバーパンク・ローグライクRPG。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ja_JP" />
+
+  <meta property="og:url" content="https://your-domain.com/" />
+
+  <meta property="og:image" content="https://your-domain.com/ogp.png" />
+  <meta property="og:image:width" content="1080" />
+  <meta property="og:image:height" content="1080" />
+  <meta property="og:image:alt" content="Labyrinth Dissonance Main Visual" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Labyrinth Dissonance - 迷宮の不協和音 -" />
+  <meta name="twitter:description" content="4.5畳、家賃5万。音楽と狂気のサイバーパンクRPG。" />
+
+  <meta name="twitter:site" content="@UniversalMake" />
+  <meta name="twitter:creator" content="@UniversalMake" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a0a1a 100%);
+      font-family: 'Rajdhani', 'Orbitron', monospace;
+      position: relative;
+    }
+
+    /* サイバーパンクグリッド背景 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ネオングロー効果 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 0, 255, 0.1) 0%, transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scale(1.1);
+      }
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Phaserキャンバスのスタイル */
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.3),
+        0 0 40px rgba(255, 0, 255, 0.2),
+        inset 0 0 60px rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* スキャンライン効果 */
+    @keyframes scanline {
+      0% {
+        transform: translateY(-100%);
+      }
+
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(transparent, rgba(0, 255, 255, 0.3), transparent);
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scanline"></div>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,492 @@
+{
+    "id": "master_data_bundle_extended",
+    "rarity_def": {
+        "Junk": { "color": "#888888", "label": "ゴミ" },
+        "Common": { "color": "#ffffff", "label": "並" },
+        "Rare": { "color": "#00aaff", "label": "良" },
+        "Vintage": { "color": "#ffaa00", "label": "宝" },
+        "Artifact": { "color": "#ff00ff", "label": "神" }
+    },
+    "affixes": [
+        {
+            "id": "afx_hardoff",
+            "name": "[Junk] 青箱の",
+            "rarity": "Junk",
+            "stat_mod": { "price": 0.01, "power": 0.1 },
+            "flavor": "ホコリと手垢にまみれた、かつての夢の残骸。"
+        },
+        {
+            "id": "afx_sticker",
+            "name": "[Sticker] シールだらけの",
+            "rarity": "Junk",
+            "stat_mod": { "price": 0.2, "power": 0.9 },
+            "flavor": "若気の至りで貼ったバンドロゴが剥がせない。"
+        },
+        {
+            "id": "afx_behringer",
+            "name": "[Plastic] 安筐体の",
+            "rarity": "Junk",
+            "stat_mod": { "price": 0.5, "power": 0.8 },
+            "flavor": "強く踏むと割れる。中身は名機のコピーという噂。"
+        },
+        {
+            "id": "afx_mod_fail",
+            "name": "[Mod] 素人改造の",
+            "rarity": "Junk",
+            "stat_mod": { "price": 0.1, "power": 1.5 },
+            "flavor": "半田付けがイモハンダ。いつ音が途切れてもおかしくない。"
+        },
+        {
+            "id": "afx_loan",
+            "name": "[Loan] 24回払いの",
+            "rarity": "Common",
+            "stat_mod": { "price": 0.8, "power": 1.0 },
+            "flavor": "所有権はまだ信販会社にある。"
+        },
+        {
+            "id": "afx_rental",
+            "name": "[Rental] レンタルの",
+            "rarity": "Common",
+            "stat_mod": { "price": 0.1, "power": 1.0 },
+            "flavor": "返却期限が迫っている。自分の物ではない。"
+        },
+        {
+            "id": "afx_mercari",
+            "name": "[NCNR] 返品不可の",
+            "rarity": "Common",
+            "stat_mod": { "price": 0.9, "power": 1.0 },
+            "flavor": "「動作未確認です」という不穏な一文が添えられている。"
+        },
+        {
+            "id": "afx_reissue",
+            "name": "[Reissue] リイシューの",
+            "rarity": "Common",
+            "stat_mod": { "price": 1.0, "power": 1.1 },
+            "flavor": "復刻版。オリジナルほどのオーラはないが実用的。"
+        },
+        {
+            "id": "afx_analog",
+            "name": "[Analog] アナログの",
+            "rarity": "Rare",
+            "stat_mod": { "price": 1.5, "power": 1.2 },
+            "flavor": "ノイズすらも「音楽的」と言い張れる暖かみ。"
+        },
+        {
+            "id": "afx_truebypass",
+            "name": "[TrueBypass] 原音重視の",
+            "rarity": "Rare",
+            "stat_mod": { "price": 1.2, "power": 1.1 },
+            "flavor": "スイッチを踏むと「ボンッ」と爆音が鳴る仕様。"
+        },
+        {
+            "id": "afx_signature",
+            "name": "[Sig.] アーティストモデルの",
+            "rarity": "Rare",
+            "stat_mod": { "price": 2.5, "power": 1.1 },
+            "flavor": "本人のサイン入り。使うのが少し恥ずかしい。"
+        },
+        {
+            "id": "afx_mij",
+            "name": "[MIJ] ジャパンビンテージの",
+            "rarity": "Rare",
+            "stat_mod": { "price": 2.0, "power": 1.3 },
+            "flavor": "80年代のフジゲン製。神格化されている。"
+        },
+        {
+            "id": "afx_boutique",
+            "name": "[Boutique] ハンドメイドの",
+            "rarity": "Vintage",
+            "stat_mod": { "price": 10.0, "power": 1.5 },
+            "flavor": "塗装が剥がれやすいのが逆にお洒落とされる。"
+        },
+        {
+            "id": "afx_precbs",
+            "name": "[Pre-CBS] 65年製の",
+            "rarity": "Vintage",
+            "stat_mod": { "price": 50.0, "power": 2.0 },
+            "flavor": "塗装のクラック一つ一つに1万円の価値がある。"
+        },
+        {
+            "id": "afx_nos",
+            "name": "[NOS] デッドストックの",
+            "rarity": "Vintage",
+            "stat_mod": { "price": 20.0, "power": 1.8 },
+            "flavor": "倉庫の奥で忘れ去られていた奇跡。"
+        },
+        {
+            "id": "afx_klon",
+            "name": "[Centaur] 半人半獣の",
+            "rarity": "Artifact",
+            "stat_mod": { "price": 100.0, "power": 5.0 },
+            "flavor": "繋ぐだけで音が太くなるオカルトの頂点。"
+        },
+        {
+            "id": "afx_dumble",
+            "name": "[Overdrive] 幻の",
+            "rarity": "Artifact",
+            "stat_mod": { "price": 500.0, "power": 10.0 },
+            "flavor": "家が一軒買える値段のアンプの音がする（気がする）。"
+        },
+        {
+            "id": "afx_heavy",
+            "name": "[Heavy] 重低音の",
+            "rarity": "Common",
+            "stat_mod": { "price": 1.0, "power": 1.2 },
+            "flavor": "腰にくる重さ。音圧で物理攻撃が可能。"
+        },
+        {
+            "id": "afx_jazz",
+            "name": "[Jazz] 難解な",
+            "rarity": "Rare",
+            "stat_mod": { "price": 2.0, "power": 0.8 },
+            "flavor": "代理コードが多すぎて、もはや何がトニックか分からない。"
+        },
+        {
+            "id": "afx_metal",
+            "name": "[Metal] 歪（ひず）んだ",
+            "rarity": "Common",
+            "stat_mod": { "price": 0.8, "power": 1.5 },
+            "flavor": "ゲインフルテン。何を弾いても潰れた音になる。"
+        },
+        {
+            "id": "afx_pop",
+            "name": "[Pop] 売れ線の",
+            "rarity": "Rare",
+            "stat_mod": { "price": 3.0, "power": 0.5 },
+            "flavor": "誰にでも好かれるが、深みはない。コマーシャリズムの塊。"
+        },
+        {
+            "id": "afx_shoegaze",
+            "name": "[Shoegazer] 轟音の",
+            "rarity": "Rare",
+            "stat_mod": { "price": 1.5, "power": 1.8 },
+            "flavor": "リバーブの海に溺れる。足元の確認で忙しい。"
+        }
+    ],
+    "items": [
+        {
+            "id": "itm_trash_01",
+            "name": "切れた1弦 (0.09)",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 0,
+            "base_power": 1,
+            "flavor": "チョーキングした瞬間の絶望が記憶されている。"
+        },
+        {
+            "id": "itm_trash_02",
+            "name": "松屋の食券 (半券)",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 0,
+            "base_power": 0,
+            "flavor": "牛めし並盛。昨日の晩餐にして、明日への活力。"
+        },
+        {
+            "id": "itm_trash_03",
+            "name": "スタジオの会員証 (期限切れ)",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 5,
+            "base_power": 2,
+            "flavor": "更新料500円が払えなくて足が遠のいた。"
+        },
+        {
+            "id": "itm_trash_04",
+            "name": "折れたスティック",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 10,
+            "base_power": 5,
+            "flavor": "ドラマーが感情に任せて叩き折った凶器。ささくれが痛い。"
+        },
+        {
+            "id": "itm_trash_05",
+            "name": "ピック (減った)",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 10,
+            "base_power": 2,
+            "flavor": "円形になるまで使い込まれたティアドロップ。"
+        },
+        {
+            "id": "itm_trash_06",
+            "name": "謎のネジ",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 1,
+            "base_power": 1,
+            "flavor": "機材を分解した後、必ず一本余るアレ。"
+        },
+        {
+            "id": "itm_trash_07",
+            "name": "割れたシンバル片",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 50,
+            "base_power": 15,
+            "flavor": "非常に鋭利。手裏剣として使えるかもしれない。"
+        },
+        {
+            "id": "itm_trash_08",
+            "name": "空のモンスターエナジー",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 0,
+            "base_power": 0,
+            "flavor": "深夜のリハーサルの名残り。カフェインはもう残っていない。"
+        },
+        {
+            "id": "itm_trash_09",
+            "name": "誰かのセットリスト",
+            "type": "trash",
+            "rarity": "Junk",
+            "base_price": 0,
+            "base_power": 1,
+            "flavor": "足元にガムテで貼られていた紙。知らない曲名が並ぶ。"
+        },
+        {
+            "id": "itm_wpn_01",
+            "name": "カポタスト",
+            "type": "weapon",
+            "rarity": "Common",
+            "base_price": 1500,
+            "base_power": 10,
+            "flavor": "指板を締め付ける拷問器具。敵の指も挟める。"
+        },
+        {
+            "id": "itm_wpn_02",
+            "name": "スライドバー (薬瓶)",
+            "type": "weapon",
+            "rarity": "Rare",
+            "base_price": 2000,
+            "base_power": 12,
+            "flavor": "ブルースマンの涙と風邪薬が入っていた瓶。"
+        },
+        {
+            "id": "itm_wpn_03",
+            "name": "SM58 (マイク)",
+            "type": "weapon",
+            "rarity": "Rare",
+            "base_price": 10000,
+            "base_power": 18,
+            "flavor": "釘も打てるし、歌も歌える鈍器。ライブハウスの守護神。"
+        },
+        {
+            "id": "itm_wpn_04",
+            "name": "テレキャスター",
+            "type": "weapon",
+            "rarity": "Vintage",
+            "base_price": 50000,
+            "base_power": 35,
+            "flavor": "耳をつんざく高音が武器。凶器のような板切れ。"
+        },
+        {
+            "id": "itm_wpn_05",
+            "name": "レスポール (激重)",
+            "type": "weapon",
+            "rarity": "Vintage",
+            "base_price": 80000,
+            "base_power": 45,
+            "flavor": "5kgある。肩こりと引き換えに、太いサステインを得る。"
+        },
+        {
+            "id": "itm_wpn_06",
+            "name": "変形ギター",
+            "type": "weapon",
+            "rarity": "Rare",
+            "base_price": 30000,
+            "base_power": 30,
+            "flavor": "尖った部分で刺せる。座って弾くことは不可能。"
+        },
+        {
+            "id": "itm_wpn_07",
+            "name": "巨大エフェクターボード",
+            "type": "weapon",
+            "rarity": "Rare",
+            "base_price": 20000,
+            "base_power": 40,
+            "flavor": "運搬で腰をやる。もはや要塞。"
+        },
+        {
+            "id": "itm_wpn_08",
+            "name": "マイクスタンド",
+            "type": "weapon",
+            "rarity": "Common",
+            "base_price": 3000,
+            "base_power": 15,
+            "flavor": "振り回してはいけないと教わるが、振り回したくなる棒。"
+        },
+        {
+            "id": "itm_wpn_09",
+            "name": "プレシジョンベース",
+            "type": "weapon",
+            "rarity": "Common",
+            "base_price": 40000,
+            "base_power": 50,
+            "flavor": "ネックが極太の丸太。打撃武器としての性能は最強。"
+        },
+        {
+            "id": "itm_wpn_10",
+            "name": "ダブルネックギター",
+            "type": "weapon",
+            "rarity": "Vintage",
+            "base_price": 120000,
+            "base_power": 60,
+            "flavor": "重すぎて回避行動が取れなくなる。見た目のインパクトは絶大。"
+        },
+        {
+            "id": "itm_wpn_11",
+            "name": "アコースティックギター",
+            "type": "weapon",
+            "rarity": "Common",
+            "base_price": 20000,
+            "base_power": 20,
+            "flavor": "殴ると壊れる儚い武器。路上ライブの魂が宿る。"
+        },
+        {
+            "id": "itm_wpn_12",
+            "name": "キーボードスタンド (X型)",
+            "type": "weapon",
+            "rarity": "Common",
+            "base_price": 5000,
+            "base_power": 25,
+            "flavor": "指を挟みやすい罠。盾としても使える。"
+        },
+        {
+            "id": "itm_acc_01",
+            "name": "パッチケーブル (15cm)",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 500,
+            "base_power": 3,
+            "flavor": "防具として体に巻く。接触不良の原因は大抵こいつ。"
+        },
+        {
+            "id": "itm_acc_02",
+            "name": "9V電池 (マンガン)",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 100,
+            "base_power": 5,
+            "flavor": "「アルカリより音が枯れて良い」という都市伝説がある。"
+        },
+        {
+            "id": "itm_acc_03",
+            "name": "接点復活剤",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 800,
+            "base_power": 8,
+            "flavor": "ガリノイズを一時的に黙らせる魔法のスプレー。"
+        },
+        {
+            "id": "itm_acc_04",
+            "name": "黒本 (Real Book)",
+            "type": "accessory",
+            "rarity": "Rare",
+            "base_price": 3500,
+            "base_power": 25,
+            "flavor": "ジャズマンのバイブル。防弾チョッキ代わりになる厚さ。"
+        },
+        {
+            "id": "itm_acc_05",
+            "name": "真空管 (12AX7)",
+            "type": "accessory",
+            "rarity": "Vintage",
+            "base_price": 5000,
+            "base_power": 30,
+            "flavor": "暖かみのある音がする、割れやすいガラスの棺。"
+        },
+        {
+            "id": "itm_acc_06",
+            "name": "BBD素子 (MN3005)",
+            "type": "accessory",
+            "rarity": "Vintage",
+            "base_price": 8000,
+            "base_power": 20,
+            "flavor": "失われたアナログディレイの心臓部。現代では入手困難。"
+        },
+        {
+            "id": "itm_acc_07",
+            "name": "耳栓",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 1000,
+            "base_power": 10,
+            "flavor": "精神的ダメージ（爆音）を軽減する。"
+        },
+        {
+            "id": "itm_acc_08",
+            "name": "サングラス",
+            "type": "accessory",
+            "rarity": "Rare",
+            "base_price": 5000,
+            "base_power": 15,
+            "flavor": "夜でも室内でもかけるのが一流の証。"
+        },
+        {
+            "id": "itm_acc_09",
+            "name": "クリップチューナー",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 1500,
+            "base_power": 5,
+            "flavor": "ヘッドに付けっぱなしにしているとダサいと言われる。"
+        },
+        {
+            "id": "itm_acc_10",
+            "name": "ストラップロック",
+            "type": "accessory",
+            "rarity": "Common",
+            "base_price": 1800,
+            "base_power": 8,
+            "flavor": "激しいステージングでも楽器が落ちない安心感。"
+        },
+        {
+            "id": "itm_god_01",
+            "name": "59年製レスポールの破片",
+            "type": "accessory",
+            "rarity": "Artifact",
+            "base_price": 100000,
+            "base_power": 80,
+            "flavor": "木片だけで崇められる、ロックンロールの聖遺物。"
+        },
+        {
+            "id": "itm_god_02",
+            "name": "ジミの燃えカス",
+            "type": "accessory",
+            "rarity": "Artifact",
+            "base_price": 300000,
+            "base_power": 120,
+            "flavor": "モンタレーで焼かれた伝説のストラトの灰。"
+        },
+        {
+            "id": "itm_text_01",
+            "name": "スロニムスキー音階辞典",
+            "type": "book",
+            "rarity": "Vintage",
+            "base_price": 4000,
+            "base_power": 40,
+            "flavor": "コルトレーンが持ち歩いた魔導書。読むと発狂する。"
+        },
+        {
+            "id": "itm_text_02",
+            "name": "サンレコ (バックナンバー)",
+            "type": "book",
+            "rarity": "Rare",
+            "base_price": 1500,
+            "base_power": 20,
+            "flavor": "機材欲を無限に刺激する呪いの書。プラグイン課金を誘発する。"
+        },
+        {
+            "id": "itm_text_03",
+            "name": "バークリーメソッド I",
+            "type": "book",
+            "rarity": "Rare",
+            "base_price": 3000,
+            "base_power": 30,
+            "flavor": "音楽を数学に変える書。挫折した者の涙が染みている。"
+        }
+    ]
+}

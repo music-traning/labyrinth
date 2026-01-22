@@ -1,0 +1,105 @@
+{
+    "title": "公共職業訓練センター",
+    "subtitle": "どのコースを受講する？",
+    "courses": [
+        {
+            "id": "music_theory",
+            "name": "音楽理論（スパルタ）",
+            "description": "厳しい訓練で音楽の基礎を叩き込む。\n攻撃力+3、スキル習得",
+            "cost": 5000,
+            "requirements": {
+                "level": 1
+            },
+            "rewards": {
+                "baseAtk": 3,
+                "skill": "skl_counter_q"
+            }
+        },
+        {
+            "id": "industry_speak",
+            "name": "業界用語セミナー",
+            "description": "音楽業界の専門用語を学ぶ。\nハッタリLv+1、人間性-10",
+            "cost": 3000,
+            "requirements": {
+                "level": 1
+            },
+            "rewards": {
+                "bluffLevel": 1,
+                "humanity": -10
+            }
+        },
+        {
+            "id": "deconstruction",
+            "name": "脱構築講座",
+            "description": "哲学的思考で敵を混乱させる。\n強力なスキル習得",
+            "cost": 8000,
+            "requirements": {
+                "level": 3
+            },
+            "rewards": {
+                "skill": "skl_deconstruction"
+            }
+        },
+        {
+            "id": "monitor_check",
+            "name": "中音確認技術",
+            "description": "音響技術でHPを回復する方法を学ぶ。\n回復スキル習得",
+            "cost": 6000,
+            "requirements": {
+                "level": 2
+            },
+            "rewards": {
+                "skill": "skl_monitor_check"
+            }
+        },
+        {
+            "id": "absolute_pitch",
+            "name": "絶対音感マウント講座",
+            "description": "「それピッチ悪いよ」と指摘して相手の精神を削る。\n攻撃力+5、人間性-15",
+            "cost": 12000,
+            "requirements": {
+                "level": 5
+            },
+            "rewards": {
+                "baseAtk": 5,
+                "humanity": -15
+            }
+        },
+        {
+            "id": "vintage_snob",
+            "name": "ヴィンテージ崇拝学",
+            "description": "「枯れた音」の良さを語り、防御力を高める。\n防御力+5、所持金への執着(ハッタリLv+1)",
+            "cost": 15000,
+            "requirements": {
+                "level": 8
+            },
+            "rewards": {
+                "baseDef": 5,
+                "bluffLevel": 1
+            }
+        },
+        {
+            "id": "band_politics",
+            "name": "バンド内政治力学",
+            "description": "リーダーの機嫌を取りつつ自分の意見を通す技術。\nハッタリLv+2",
+            "cost": 8000,
+            "requirements": {
+                "level": 4
+            },
+            "rewards": {
+                "bluffLevel": 2
+            }
+        }
+    ],
+    "teacher_dialogues": [
+        "講師「音楽は数学だ。理論を学べ」",
+        "講師「業界で生き残るには、ハッタリも必要だ」",
+        "講師「この街で成功したいなら、俺の講座を受けろ」",
+        "講師「金がないなら、迷宮で稼いでこい」"
+    ],
+    "completion_messages": [
+        "講座を修了した！新たな力を得た！",
+        "知識が深まった...これで少しは戦えるか",
+        "講師「よくやった。次のステップに進め」"
+    ]
+}

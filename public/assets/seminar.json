@@ -1,0 +1,94 @@
+{
+    "instructor": {
+        "name": "虚無（うつろ）先生",
+        "title": "自称・敏腕プロデューサー",
+        "description": "やたらと光沢のある安物のスーツを着た男。\n横文字を多用するが、意味は分かっていない。",
+        "intro": "いいですか皆さん。\n相手に『こいつ、できる！』と思わせるコツ。\nそれは、**『結論を言わないこと』**です。\n結論を言わなければ、責任を取る必要もない。\nこれぞ『無限の可能性（インフィニティ）』！",
+        "closing": "本日の講義はここまで。\n次回までに、鏡の前で練習してきてください。\n『自信』は『演技』から生まれるのです。"
+    },
+    "courses": [
+        {
+            "id": "underground",
+            "level": "初級",
+            "name": "潜伏期間（Underground）",
+            "category": "言い訳の流儀",
+            "cost": 3000,
+            "requiredLevel": 1,
+            "description": "「まだ本気を出していないだけ」という\nスタンスを確立する。",
+            "effect": "大家や取り立て屋の怒りゲージを一時的に止める",
+            "phrase": "今は水面下で動いているプロジェクトが\nあるんです。まだ公表（リリース）\nできませんがね……。",
+            "skillId": "underground",
+            "humanityLoss": 5
+        },
+        {
+            "id": "dare_to",
+            "level": "初級",
+            "name": "あえて、ね（Dare to）",
+            "category": "言い訳の流儀",
+            "cost": 3000,
+            "requiredLevel": 1,
+            "description": "鑑定失敗したゴミを高値で売りつける技術。",
+            "effect": "ゴミアイテムを通常の3倍の価格で売却可能",
+            "phrase": "これは失敗じゃない。\n『ノイズ・ミュージック』という\n前衛芸術（アート）だ。\n分からないかなぁ？",
+            "skillId": "dare_to",
+            "humanityLoss": 8
+        },
+        {
+            "id": "counter_question",
+            "level": "中級",
+            "name": "質問に質問で返す（Counter Question）",
+            "category": "マウントの取り方",
+            "cost": 5000,
+            "requiredLevel": 3,
+            "description": "相手を煙に巻き、精神的優位に立つ。",
+            "effect": "ボスの攻撃ターンを1回スキップさせる",
+            "phrase": "……その『魂』の定義は？\n貴方の言う魂と、現代社会における\nソウルは、パラダイムが違うのでは？",
+            "skillId": "counter_question",
+            "humanityLoss": 10
+        },
+        {
+            "id": "name_dropping",
+            "level": "中級",
+            "name": "引用の乱用（Name Dropping）",
+            "category": "マウントの取り方",
+            "cost": 5000,
+            "requiredLevel": 3,
+            "description": "架空の偉人の名前を出し、店主をビビらせる。",
+            "effect": "ショップでの購入価格を30%値切れる",
+            "phrase": "……高いな。NYの伝説的エンジニア、\nジョン・ドゥーなら、\nこの半額で売ってくれたぜ？",
+            "skillId": "name_dropping",
+            "humanityLoss": 12
+        },
+        {
+            "id": "deconstruction",
+            "level": "上級",
+            "name": "概念の破壊（Deconstruction）",
+            "category": "宇宙との交信",
+            "cost": 8000,
+            "requiredLevel": 5,
+            "description": "会話の次元を変え、相手を戦意喪失させる。",
+            "effect": "敵全体に混乱を付与（2ターン）",
+            "phrase": "リズムを刻むな。『時間』そのものを刻め。\n俺たちは五線譜（ケージ）の中の\n囚人じゃない……宇宙（コスモ）だ。",
+            "skillId": "deconstruction",
+            "humanityLoss": 15
+        }
+    ],
+    "reactions": {
+        "success": [
+            "主人公（心の声）：\n「……なるほど。深い。」",
+            "主人公（心の声）：\n「確かに、俺が『いつか売れる』と\n言い続けているのも、\n結論を先送りにしているだけだ。」",
+            "主人公（心の声）：\n「つまり、俺はすでに\n『無限の可能性』を体現していたのか……！」",
+            "主人公（心の声）：\n「3,000円の受講料で、\nこれだけの知識が手に入るなら安い。\nこれが『ビジネス』ってやつか。」"
+        ],
+        "insufficient_money": [
+            "虚無先生：\n「おっと、受講料が足りませんね。\n『投資』できない人間に,\n『リターン』はありませんよ？」"
+        ],
+        "insufficient_level": [
+            "虚無先生：\n「まだ早い。基礎ができていない人間が\n応用を学んでも,\n『メッキ』が剥がれるだけです。」"
+        ]
+    },
+    "escape_event": {
+        "triggerDay": 10,
+        "message": "【緊急ニュース】\n\n『虚無（うつろ）』と名乗る男が,\n詐欺容疑で指名手配されました。\n\n公民館のセミナーは突然閉鎖。\n受講生たちは呆然と立ち尽くしている……。\n\n主人公（心の声）：\n「……マジかよ。\nでも、学んだスキルは本物だ。\n皮肉なもんだな。」"
+    }
+}

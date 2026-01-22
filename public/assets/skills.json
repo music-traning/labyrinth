@@ -1,0 +1,65 @@
+[
+    {
+        "id": "skl_underground",
+        "name": "潜伏期間 (Underground)",
+        "cost": 3000,
+        "mp_cost": 5,
+        "desc": "大家の怒りを止める。「水面下で動いてる」と言い張る。"
+    },
+    {
+        "id": "skl_dare_to",
+        "name": "あえて、ね (Dare to)",
+        "cost": 3000,
+        "mp_cost": 3,
+        "desc": "ゴミをアートだと言い張り、高値で売りつける。"
+    },
+    {
+        "id": "skl_counter_q",
+        "name": "質問返し (Counter Q)",
+        "cost": 5000,
+        "mp_cost": 8,
+        "desc": "敵の攻撃を1回スキップ。「その質問の定義は？」"
+    },
+    {
+        "id": "skl_name_drop",
+        "name": "博識 (Name Dropping)",
+        "cost": 5000,
+        "mp_cost": 0,
+        "desc": "架空の偉人の名前を出して、店主に値引きさせる。"
+    },
+    {
+        "id": "skl_deconstruction",
+        "name": "概念破壊 (Deconstruction)",
+        "cost": 10000,
+        "mp_cost": 15,
+        "desc": "敵全体を混乱させる。「俺たちは宇宙だ」"
+    },
+    {
+        "id": "skl_monitor_check",
+        "name": "「中音ください」 (Monitor Check)",
+        "cost": 2000,
+        "mp_cost": 5,
+        "desc": "自分の声をよく聞くことで、冷静さを取り戻す（回復）。"
+    },
+    {
+        "id": "skl_improvisation",
+        "name": "完全即興 (Improv)",
+        "cost": 8000,
+        "mp_cost": 20,
+        "desc": "楽譜を捨て、デタラメに弾く。大ダメージか大失敗か。"
+    },
+    {
+        "id": "skl_member_intro",
+        "name": "メンバー紹介 (Member Intro)",
+        "cost": 4000,
+        "mp_cost": 10,
+        "desc": "長尺のソロを振り、敵にターンを強制終了させる。"
+    },
+    {
+        "id": "skl_encore",
+        "name": "アンコール (Encore)",
+        "cost": 15000,
+        "mp_cost": 30,
+        "desc": "終わったと思った戦闘をもう一度やり直す（経験値2倍）。"
+    }
+]

@@ -1,0 +1,73 @@
+
+> labyrinth-dissonance@0.0.0 build
+> tsc && vite build
+
+src/logic/GameLogic.ts(19,25): error TS2339: Property 'Utils' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/logic/GameLogic.ts(20,26): error TS2339: Property 'Utils' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/main.ts(12,16): error TS2339: Property 'AUTO' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/main.ts(18,18): error TS2339: Property 'Scale' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/main.ts(19,24): error TS2339: Property 'Scale' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/main.ts(34,12): error TS2339: Property 'Game' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/AppraisalScene.ts(3,52): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/AppraisalScene.ts(9,40): error TS2339: Property 'scale' does not exist on type 'AppraisalScene'.
+src/scenes/AppraisalScene.ts(10,14): error TS2339: Property 'add' does not exist on type 'AppraisalScene'.
+src/scenes/AppraisalScene.ts(13,14): error TS2339: Property 'add' does not exist on type 'AppraisalScene'.
+src/scenes/AppraisalScene.ts(14,43): error TS2339: Property 'scene' does not exist on type 'AppraisalScene'.
+src/scenes/AppraisalScene.ts(15,14): error TS2339: Property 'add' does not exist on type 'AppraisalScene'.
+src/scenes/DungeonScene.ts(3,50): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/DungeonScene.ts(9,40): error TS2339: Property 'scale' does not exist on type 'DungeonScene'.
+src/scenes/DungeonScene.ts(10,14): error TS2339: Property 'add' does not exist on type 'DungeonScene'.
+src/scenes/DungeonScene.ts(13,14): error TS2339: Property 'add' does not exist on type 'DungeonScene'.
+src/scenes/DungeonScene.ts(14,43): error TS2339: Property 'scene' does not exist on type 'DungeonScene'.
+src/scenes/DungeonScene.ts(15,14): error TS2339: Property 'add' does not exist on type 'DungeonScene'.
+src/scenes/PreloadScene.ts(4,50): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/PreloadScene.ts(27,19): error TS2339: Property 'registry' does not exist on type 'PreloadScene'.
+src/scenes/PreloadScene.ts(28,18): error TS2339: Property 'registry' does not exist on type 'PreloadScene'.
+src/scenes/PreloadScene.ts(31,14): error TS2339: Property 'scene' does not exist on type 'PreloadScene'.
+src/scenes/RentCheckScene.ts(3,52): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/RentCheckScene.ts(9,40): error TS2339: Property 'scale' does not exist on type 'RentCheckScene'.
+src/scenes/RentCheckScene.ts(10,14): error TS2339: Property 'add' does not exist on type 'RentCheckScene'.
+src/scenes/RentCheckScene.ts(13,14): error TS2339: Property 'add' does not exist on type 'RentCheckScene'.
+src/scenes/RentCheckScene.ts(14,43): error TS2339: Property 'scene' does not exist on type 'RentCheckScene'.
+src/scenes/RentCheckScene.ts(15,14): error TS2339: Property 'add' does not exist on type 'RentCheckScene'.
+src/scenes/SchoolScene.ts(6,49): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/SchoolScene.ts(12,36): error TS2339: Property 'scale' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(13,24): error TS2339: Property 'registry' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(15,10): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(34,10): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(35,10): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(36,22): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(44,18): error TS2339: Property 'registry' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(54,71): error TS2339: Property 'scene' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(60,12): error TS2339: Property 'registry' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(63,12): error TS2339: Property 'scene' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(72,35): error TS2339: Property 'scene' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(78,12): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(79,12): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(80,73): error TS2339: Property 'scene' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(84,23): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/SchoolScene.ts(85,12): error TS2339: Property 'add' does not exist on type 'SchoolScene'.
+src/scenes/ShopScene.ts(3,47): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/ShopScene.ts(9,40): error TS2339: Property 'scale' does not exist on type 'ShopScene'.
+src/scenes/ShopScene.ts(10,14): error TS2339: Property 'add' does not exist on type 'ShopScene'.
+src/scenes/ShopScene.ts(13,14): error TS2339: Property 'add' does not exist on type 'ShopScene'.
+src/scenes/ShopScene.ts(14,43): error TS2339: Property 'scene' does not exist on type 'ShopScene'.
+src/scenes/ShopScene.ts(15,14): error TS2339: Property 'add' does not exist on type 'ShopScene'.
+src/scenes/StoryScene.ts(2,1): error TS6133: 'synth' is declared but its value is never read.
+src/scenes/StoryScene.ts(4,48): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/StoryScene.ts(7,32): error TS2694: Namespace '"D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser"' has no exported member 'GameObjects'.
+src/scenes/StoryScene.ts(8,32): error TS2694: Namespace '"D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser"' has no exported member 'GameObjects'.
+src/scenes/StoryScene.ts(9,32): error TS2694: Namespace '"D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser"' has no exported member 'GameObjects'.
+src/scenes/StoryScene.ts(21,40): error TS2339: Property 'scale' does not exist on type 'StoryScene'.
+src/scenes/StoryScene.ts(24,32): error TS2339: Property 'add' does not exist on type 'StoryScene'.
+src/scenes/StoryScene.ts(27,14): error TS2339: Property 'add' does not exist on type 'StoryScene'.
+src/scenes/StoryScene.ts(30,32): error TS2339: Property 'add' does not exist on type 'StoryScene'.
+src/scenes/StoryScene.ts(36,32): error TS2339: Property 'add' does not exist on type 'StoryScene'.
+src/scenes/StoryScene.ts(80,14): error TS2339: Property 'scene' does not exist on type 'StoryScene'.
+src/scenes/TownScene.ts(3,47): error TS2339: Property 'Scene' does not exist on type 'typeof import("D:/_web/\u4E0D\u5354\u548C\u306E\u8FF7\u5BAE\u3068\u56DB\u7573\u534A\u306E\u57CE/discord/labyrinth-dissonance/node_modules/phaser/types/phaser")'.
+src/scenes/TownScene.ts(9,24): error TS6133: 'height' is declared but its value is never read.
+src/scenes/TownScene.ts(9,40): error TS2339: Property 'scale' does not exist on type 'TownScene'.
+src/scenes/TownScene.ts(10,14): error TS2339: Property 'add' does not exist on type 'TownScene'.
+src/scenes/TownScene.ts(22,29): error TS2339: Property 'add' does not exist on type 'TownScene'.
+src/scenes/TownScene.ts(23,18): error TS2339: Property 'add' does not exist on type 'TownScene'.
+src/scenes/TownScene.ts(26,22): error TS2339: Property 'scene' does not exist on type 'TownScene'.

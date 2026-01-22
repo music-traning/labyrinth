@@ -1,0 +1,51 @@
+{
+    "common": {
+        "back_to_town": "街へ戻る",
+        "close": "閉じる"
+    },
+    "town": {
+        "title": "四畳半の城",
+        "menu_dungeon": "地下迷宮へ潜る\n(Dungeon)",
+        "menu_shop": "ファンクのジャンク屋\n(Shop)",
+        "menu_appraisal": "隻眼のオヤジ・ダン\n(Appraisal)",
+        "menu_school": "カルチャースクール\n(School)",
+        "menu_bar": "BAR ディミニッシュ\n(Info)",
+        "menu_rent": "家賃を払う\n(Rent)",
+        "days_left": "あと {0} 日",
+        "bar_title": "JAZZ BAR ディミニッシュ",
+        "bar_hints": [
+            "マスター「……裏口（攻略ルート）がある。トライトーン（増4度）の響きを頼りに進め。」",
+            "マスター「あえてゴミを売る……それがアヴァンギャルドだ。」",
+            "マスター「家賃を払うか、装備を買うか。……人生は常に二者択一だ。」",
+            "マスター「カクテル『トリトン』……不協和音の味がするだろう？」"
+        ]
+    },
+    "dungeon": {
+        "depth": "深度: B{0}F",
+        "entry_log": "地下迷宮の入り口に立っている。\nカビと古びた弦の匂いがする。",
+        "advance_btn": "進む\n(TAP)",
+        "skill_btn": "スキル",
+        "escape_btn": "街へ逃げる",
+        "escape_fail": "戦闘中は逃げられない！",
+        "ambient_texts": [
+            "足音が響く……。",
+            "遠くでギターのフィードバック音がする……。",
+            "カビの匂いが強くなった……。",
+            "湿気が酷い……。",
+            "どこかで誰かが咳をする音が聞こえた気がした。",
+            "壁に「F」という文字が刻まれている。"
+        ],
+        "found_item": "何かを見つけた！ ({0})",
+        "enemy_appear": "『{0}』が現れた！",
+        "enemy_default_flavor": "不吉な気配がする。",
+        "enemy_attack": "敵の攻撃！",
+        "enemy_stunned": "敵は混乱して動けない！",
+        "skill_menu_title": "使用スキル",
+        "no_skills": "戦闘スキルを習得していない。",
+        "skill_used_stun": "敵はスタンした！",
+        "skill_used_confuse": "敵のリズムが崩れた！ (混乱)",
+        "crit_hit": "クリティカルヒット！",
+        "win_reward": "敵を倒した！ ¥{0} を手に入れた。",
+        "win_growth": "演奏力が向上した。(ATK+0.5)"
+    }
+}

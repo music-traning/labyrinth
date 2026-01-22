@@ -1,0 +1,74 @@
+{
+    "memories": [
+        {
+            "id": "first_live",
+            "name": "初めてのライブハウス",
+            "description": "高校の文化祭。\n100人の前で演奏した。\n\n手が震えて、コードを間違えた。\nでも、誰かが拍手してくれた。",
+            "price": 8000,
+            "mpLoss": 2,
+            "prideLoss": 5,
+            "humanityLoss": 8,
+            "flavorText": "あの日の緊張感。\n今でも思い出すと、胸が熱くなる。"
+        },
+        {
+            "id": "broken_string",
+            "name": "本番中に切れた弦",
+            "description": "ライブの最中、1弦が切れた。\n\n観客は笑った。\nバンドメンバーは焦った。\n\n……俺は、5弦だけで弾き切った。",
+            "price": 6000,
+            "mpLoss": 2,
+            "prideLoss": 3,
+            "humanityLoss": 5,
+            "flavorText": "トラブルを乗り越えた経験。\nそれが、今の自信になっている。"
+        },
+        {
+            "id": "first_guitar",
+            "name": "初めて買ったギター",
+            "description": "中学の時、バイト代で買った。\n\n安物のストラトキャスター。\nネックは反っていて、音程も狂っていた。\n\n……でも、宝物だった。",
+            "price": 15000,
+            "mpLoss": 5,
+            "prideLoss": 15,
+            "humanityLoss": 20,
+            "flavorText": "今はもう、手元にない。\nでも、あのギターがなければ、\n今の俺はいない。"
+        },
+        {
+            "id": "band_breakup",
+            "name": "バンド解散の夜",
+            "description": "「俺、就職するわ」\n\nドラムが言った。\nベースも、ボーカルも、黙っていた。\n\n……音楽で食っていけるのは、\n一握りだけだ。",
+            "price": 10000,
+            "mpLoss": 4,
+            "prideLoss": 10,
+            "humanityLoss": 15,
+            "flavorText": "あの夜、何も言えなかった。\n俺も、諦めるべきだったのかもしれない。"
+        },
+        {
+            "id": "fan_letter",
+            "name": "唯一のファンレター",
+            "description": "「あなたの曲に救われました」\n\n手書きの手紙。\n知らない人からの、たった一通。\n\n……これがあるから、続けられた。",
+            "price": 12000,
+            "mpLoss": 4,
+            "prideLoss": 8,
+            "humanityLoss": 12,
+            "flavorText": "誰かに届いていた。\nそれだけで、十分だった。"
+        },
+        {
+            "id": "studio_all_night",
+            "name": "スタジオでの徹夜",
+            "description": "朝まで練習した。\n\n何度も何度も、同じフレーズを弾いた。\n指が血だらけになっても、止まらなかった。\n\n……あの頃は、純粋だった。",
+            "price": 7000,
+            "mpLoss": 3,
+            "prideLoss": 5,
+            "humanityLoss": 10,
+            "flavorText": "今は、効率を考えてしまう。\nあの情熱は、どこへ行ったんだろう。"
+        },
+        {
+            "id": "street_performance",
+            "name": "路上ライブの投げ銭",
+            "description": "駅前で弾いた。\n\n通行人は素通りした。\n警察に怒られた。\n\n……でも、100円玉が一枚、\nギターケースに入っていた。",
+            "price": 5000,
+            "mpLoss": 2,
+            "prideLoss": 4,
+            "humanityLoss": 6,
+            "flavorText": "誰かが、聴いてくれていた。\nそれだけで、報われた気がした。"
+        }
+    ]
+}
