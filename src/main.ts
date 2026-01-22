@@ -1,3 +1,9 @@
+// src/main.ts
+import { inject } from '@vercel/analytics'; // 追加
+
+// アナリティクスを開始
+inject(); // 追加
+
 import Phaser from 'phaser';
 import PreloadScene from './scenes/PreloadScene';
 import StoryScene from './scenes/StoryScene';
